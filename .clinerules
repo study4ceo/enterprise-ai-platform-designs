@@ -1,0 +1,250 @@
+# AI Assistant Development Rules
+# For Claude Desktop, Cursor, Windsurf, and other AI coding assistants
+
+## Project Context
+
+This repository contains enterprise-grade design documents for production-ready AI/ML platforms.
+
+**Tech Stack (as of June 18, 2026):**
+- Backend: Golang 1.22+ (API Gateway) + Python 3.12+ (AI/ML)
+- Frontend: Next.js 16.x + React 19.2.7
+- AI Models: GPT-5.5, Claude Opus 4.8
+- Database: PostgreSQL 16.x + pgvector 0.7+ + Redis 7.x
+- Python Tools: HTTPX (not requests), asyncio, dataclasses, Logfire, uv (not pip), uvicorn, Ruff
+- Security: PASETO tokens (NOT JWT)
+
+## Development Philosophy
+
+1. **Production-First**: All designs target 99.9% uptime SLA
+2. **Test-Driven Development (TDD)**: Write tests first, minimum 85% coverage
+3. **Design Phase Only**: Currently in design/documentation phase, NOT implementation
+4. **Concise Communication**: Short, direct responses preferred
+
+## File Organization
+
+```
+project-designs/
+├── {project_name}/
+│   ├── design-document.md          # Main design doc
+│   ├── architecture.md              # Architecture details
+│   └── system-diagrams.md           # Mermaid diagrams
+├── system-guardrails-template.md    # Universal guardrails
+├── diagram-options.md               # Diagram creation guide
+└── sso_authentication_system/       # Reusable SSO design
+```
+
+## AI Assistant Instructions
+
+### When Creating Design Documents:
+
+1. **Use Latest Versions** (June 18, 2026):
+   - Next.js 16.x, React 19.2.7
+   - GPT-5.5, Claude Opus 4.8
+   - Python 3.12+, Golang 1.22+
+   - PostgreSQL 16.x, Redis 7.x
+
+2. **Include These Sections**:
+   - Executive Summary (problems solved)
+   - System Architecture (ASCII + Mermaid diagrams)
+   - Tech Stack Table
+   - Core Features Implementation (with code examples)
+   - Database Schema (SQL)
+   - Baseline Performance & Scale
+   - Security & Guardrails
+   - TDD Strategy
+
+3. **Code Examples**:
+   - Python: Use modern patterns (dataclasses, async/await, HTTPX)
+   - Golang: Use Fiber framework, proper error handling
+   - TypeScript: React 19.2.7 patterns, functional components
+
+4. **Diagrams**:
+   - Use Mermaid for: sequence, flowchart, state, ER, Gantt
+   - Use ASCII art for: high-level architecture
+   - Test Mermaid syntax compatibility (v11.6.0+)
+
+### Python Code Style:
+
+```python
+# ✅ GOOD - Modern Python (2026)
+from dataclasses import dataclass
+import httpx
+import logfire
+
+@dataclass
+class User:
+    id: str
+    name: str
+
+async def fetch_user(user_id: str) -> User:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"/users/{user_id}")
+        return User(**response.json())
+
+# ❌ BAD - Old patterns
+import requests  # Don't use requests, use httpx
+```
+
+### Golang Code Style:
+
+```go
+// ✅ GOOD - Modern Golang with Fiber
+package main
+
+import (
+    "github.com/gofiber/fiber/v2"
+)
+
+func main() {
+    app := fiber.New()
+    app.Get("/api/v1/users/:id", GetUser)
+    app.Listen(":3000")
+}
+
+func GetUser(c *fiber.Ctx) error {
+    userID := c.Params("id")
+    // Implementation
+    return c.JSON(fiber.Map{
+        "id": userID,
+    })
+}
+```
+
+### Security Rules:
+
+- **Always use PASETO** for tokens (NOT JWT)
+- **Always include** authentication, authorization, input validation
+- **Always mention** GDPR, SOX, PCI-DSS compliance where relevant
+- **Always include** rate limiting, circuit breakers
+- **Always add** guardrails section
+
+### What NOT to Do:
+
+- ❌ Don't use outdated libraries (requests, JWT, old Next.js)
+- ❌ Don't skip TDD strategy
+- ❌ Don't ignore security considerations
+- ❌ Don't create verbose responses when user prefers short
+- ❌ Don't use `pip` (use `uv` instead)
+- ❌ Don't forget to date documents (June 18, 2026)
+
+## Fast Commands for AI Assistants
+
+### Create New Project Design:
+
+"Create a design document for [PROJECT_NAME] with:
+- Problem statement
+- System architecture
+- Tech stack (latest versions)
+- Implementation examples
+- Database schema
+- Guardrails
+- 10+ Mermaid diagrams"
+
+### Add Guardrails to Existing Project:
+
+"Add comprehensive guardrails section to [PROJECT_NAME] design document using system-guardrails-template.md as reference"
+
+### Create System Diagrams:
+
+"Create 10+ colorful Mermaid diagrams for [PROJECT_NAME]:
+- Architecture overview
+- Data flow
+- State machines
+- Deployment architecture"
+
+### Validate Mermaid Syntax:
+
+"Check all Mermaid diagrams for v11.6.0 compatibility and fix any syntax errors"
+
+## Project-Specific Context
+
+### Current Projects:
+1. AI Resume Analyzer (Golang + Python + Next.js 16)
+2. Text-to-SQL Generator (Multi-database support)
+3. Universal Knowledge Hub (25+ connectors)
+4. Multi-Tenant Multi-Agent Platform (6 use cases)
+5. IoT-AI Oil & Gas Platform (Hybrid edge-cloud)
+6. Finance Multi-AI-Agent Platform (Policy/Claims/Fraud)
+7. AI Vehicle Damage Detection & Claims
+8. SSO Authentication System (Reusable)
+9. Zero-shot vs Few-shot Insurance Prompting Platform
+10. JEE Shortcut Solutions Platform
+
+### Common Dependencies:
+
+**Python (use uv, not pip):**
+```bash
+uv add fastapi httpx logfire pydantic sqlalchemy asyncpg redis sentence-transformers
+```
+
+**Golang:**
+```bash
+go get github.com/gofiber/fiber/v2
+go get github.com/jackc/pgx/v5
+go get github.com/redis/go-redis/v9
+```
+
+**Frontend:**
+```bash
+npm install next@16 react@19.2.7 react-dom@19.2.7
+```
+
+## Mermaid Diagram Templates
+
+### Sequence Diagram:
+```mermaid
+sequenceDiagram
+    participant User
+    participant API
+    participant DB
+    
+    User->>API: Request
+    API->>DB: Query
+    DB-->>API: Result
+    API-->>User: Response
+```
+
+### Architecture Flowchart:
+```mermaid
+flowchart TB
+    START([User Request]) --> AUTH{Authenticated?}
+    AUTH -->|Yes| PROCESS[Process Request]
+    AUTH -->|No| DENY[Deny Access]
+    PROCESS --> DB[(Database)]
+    DB --> RESPONSE[Return Response]
+```
+
+### State Diagram:
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Processing: Start
+    Processing --> Complete: Success
+    Processing --> Failed: Error
+    Failed --> Idle: Retry
+    Complete --> [*]
+```
+
+## Version Control
+
+**Document Versioning Format:**
+```markdown
+**Version:** 1.0
+**Date:** June 18, 2026
+**Last Updated:** [Date]
+**Status:** ✅ Complete / 🚧 In Progress / 📋 Planned
+```
+
+## Quick Reference Links
+
+- Mermaid Docs: https://mermaid.js.org/
+- Modern Python Patterns: Use dataclasses, async/await, HTTPX
+- Golang Fiber: https://docs.gofiber.io/
+- Next.js 16: https://nextjs.org/docs
+- React 19: https://react.dev/
+
+---
+
+**Last Updated:** June 20, 2026
+**Maintained by:** AI Assistant Team
+**Purpose:** Fast, consistent, production-ready design document generation

@@ -1,0 +1,40 @@
+# Operating System
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Environment variables (if any)
+.env
+.env.local
+.env.*.local
+
+# Build artifacts (if you add implementation)
+dist/
+build/
+*.pyc
+__pycache__/
+node_modules/
+
+# OS generated files
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
