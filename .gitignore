@@ -1,40 +1,28 @@
-# Operating System
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-*~
+# Personal execution plans (keep private)
+QUICK-START.md
+NEXT-STEPS.md
+YOUR-90-DAY-EXECUTION-PLAN.md
+ELITE-REMOTE-WORK-STRATEGY.md
+REMOTE-WORK-ROADMAP.md
 
-# IDE
-.vscode/
-.idea/
-*.sublime-*
+# Personal notes
+*-PERSONAL.md
+*-PRIVATE.md
+notes/
+personal/
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
-
-# Environment variables (if any)
+# Environment files
 .env
 .env.local
 .env.*.local
 
-# Build artifacts (if you add implementation)
-dist/
-build/
-*.pyc
-__pycache__/
-node_modules/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# OS generated files
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Desktop.ini
+# OS
+.DS_Store
+Thumbs.db
