@@ -792,6 +792,97 @@ class EnterpriseIntegration:
         return {'compute': compute, 'storage': storage}
 ```
 
+### 4.6 Agent-Validator Pattern
+
+The Database Migration Agent implements a defense-in-depth validation strategy where each specialized execution agent has a corresponding validator agent that acts as an independent watchdog.
+
+#### Principles
+
+1. **Isolation of Responsibility**: Execution agents focus on performing operations; validator agents focus on verification and assurance
+2. **Defense in Depth**: Prevents silent failures, schema drift, and compliance violations
+3. **Autonomy & Trust**: Validator agents act as independent watchdogs, ensuring AI doesn't "hallucinate" unsafe transformations
+4. **Auditability**: Validator logs provide traceable evidence for governance and compliance
+
+#### Agent-Validator Pairs
+
+**1. Schema Translator Agent ↔ Schema Validator Agent**
+- Ensures mappings preserve constraints, keys, and relationships
+- Validates table count, primary keys, foreign keys, constraints
+
+**2. Query Translator Agent ↔ Query Validator Agent**
+- Checks SQL dialect conversions, execution plans, and performance
+- Validates semantic equivalence and detects performance degradation
+
+**3. Data Transformer Agent ↔ Data Integrity Validator Agent**
+- Validates type casting, normalization, and anomaly detection
+- Ensures row count matches and data types are correct
+
+**4. Compliance Agent ↔ Compliance Validator Agent**
+- Confirms masking, encryption, and regulatory rules are applied
+- Validates GDPR, HIPAA, PCI-DSS compliance
+
+**5. Orchestration Agent ↔ Workflow Validator Agent**
+- Monitors DAG execution, retries, and rollback correctness
+- Validates complete workflow with drift detection
+
+```python
+class ValidatedMigrationPipeline:
+    """Complete migration pipeline with Agent-Validator coordination"""
+    
+    def __init__(self, mcp_adapter: MCPClientAdapter):
+        # Execution Agents
+        self.orchestration_agent = OrchestrationAgent(mcp_adapter)
+        
+        # Validator Agents
+        self.workflow_validator = WorkflowValidatorAgent(mcp_adapter)
+        
+    async def execute_with_validation(
+        self,
+        config: MigrationConfig
+    ) -> ValidatedMigrationResult:
+        """Execute migration with continuous validation"""
+        
+        # Phase 1: Execute migration workflow
+        migration_result = await self.orchestration_agent.execute_migration_workflow(config)
+        
+        # Phase 2: Validate complete workflow
+        validation_result = await self.workflow_validator.validate_workflow(
+            migration_result,
+            config
+        )
+        
+        # Phase 3: Decision based on validation
+        if not validation_result.passed:
+            # Log validation failures
+            await self._log_validation_failures(validation_result)
+            
+            # Trigger automatic rollback if critical issues
+            critical_issues = [
+                i for i in validation_result.issues
+                if i.severity == 'critical'
+            ]
+            
+            if critical_issues:
+                rollback_result = await self.orchestration_agent._rollback_migration(
+                    migration_result.phases_completed
+                )
+                
+                return ValidatedMigrationResult(
+                    success=False,
+                    migration_result=migration_result,
+                    validation_result=validation_result,
+                    rollback_performed=True,
+                    rollback_result=rollback_result
+                )
+        
+        return ValidatedMigrationResult(
+            success=True,
+            migration_result=migration_result,
+            validation_result=validation_result,
+            rollback_performed=False
+        )
+```
+
 ---
 
 ## 5. Migration Workflows
