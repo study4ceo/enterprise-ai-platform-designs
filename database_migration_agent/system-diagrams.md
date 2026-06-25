@@ -789,10 +789,10 @@ graph TB
 
 ---
 
-**Status:** ✅ Complete - 20 Comprehensive System Diagrams
+**Status:** ✅ Complete - 15 Comprehensive System Diagrams
 
 **Diagram Summary:**
-1. Complete System Architecture - Full component layout with all MCP servers
+1. Complete System Architecture - Full component layout
 2. Migration Workflow - End-to-end sequence
 3. Schema Discovery and Analysis - Parallel extraction pipeline
 4. AI Migration Planning - LLM-powered strategy generation
@@ -807,11 +807,6 @@ graph TB
 13. Multi-Tenancy Architecture - Resource isolation
 14. Security Architecture - Defense-in-depth layers
 15. Deployment Architecture - Kubernetes cluster layout
-16. Agent-Validator Pattern Overview - Defense-in-depth validation
-17. Schema Translation with Validation Flow - Agent-Validator coordination
-18. Multi-Agent Coordinator with Validators - Complete validation pipeline
-19. Compliance MCP Workflow - Regulatory enforcement
-20. Knowledge MCP Semantic Mapping - ML-powered schema mapping
 
 **Rendering:** All diagrams use Mermaid syntax compatible with GitHub, GitLab, VS Code, Notion, and Confluence
 
@@ -829,3 +824,774 @@ graph TB
 
 **Document Complete**  
 **Date:** June 24, 2026
+
+
+---
+
+## 16. Agent-Validator Pattern Overview
+
+```mermaid
+graph TB
+    subgraph "Execution Agents"
+        SCHEMA_AGENT[Schema Translator Agent<br/>Converts schema between DB types]
+        QUERY_AGENT[Query Translator Agent<br/>Converts SQL dialects]
+        DATA_AGENT[Data Transformer Agent<br/>Type casting & normalization]
+        COMPLIANCE_AGENT[Compliance Agent<br/>Masking & encryption]
+        ORCHESTRATION_AGENT[Orchestration Agent<br/>Workflow coordination]
+    end
+    
+    subgraph "Validator Agents - Defense in Depth"
+        SCHEMA_VALIDATOR[Schema Validator Agent<br/>Preserves constraints & keys]
+        QUERY_VALIDATOR[Query Validator Agent<br/>Checks semantics & performance]
+        DATA_VALIDATOR[Data Integrity Validator<br/>Anomaly detection]
+        COMPLIANCE_VALIDATOR[Compliance Validator<br/>Regulatory enforcement]
+        WORKFLOW_VALIDATOR[Workflow Validator Agent<br/>DAG execution monitoring]
+    end
+    
+    subgraph "Validation Checkpoints"
+        CHECKPOINT1[Checkpoint 1:<br/>Schema Translation]
+        CHECKPOINT2[Checkpoint 2:<br/>Query Translation]
+        CHECKPOINT3[Checkpoint 3:<br/>Data Transformation]
+        CHECKPOINT4[Checkpoint 4:<br/>Compliance Rules]
+        CHECKPOINT5[Checkpoint 5:<br/>Workflow Execution]
+    end
+    
+    SCHEMA_AGENT --> CHECKPOINT1
+    CHECKPOINT1 --> SCHEMA_VALIDATOR
+    SCHEMA_VALIDATOR -->|Pass| QUERY_AGENT
+    SCHEMA_VALIDATOR -->|Fail| ROLLBACK1[Trigger Rollback]
+    
+    QUERY_AGENT --> CHECKPOINT2
+    CHECKPOINT2 --> QUERY_VALIDATOR
+    QUERY_VALIDATOR -->|Pass| DATA_AGENT
+    QUERY_VALIDATOR -->|Fail| ROLLBACK2[Trigger Rollback]
+    
+    DATA_AGENT --> CHECKPOINT3
+    CHECKPOINT3 --> DATA_VALIDATOR
+    DATA_VALIDATOR -->|Pass| COMPLIANCE_AGENT
+    DATA_VALIDATOR -->|Fail| ROLLBACK3[Trigger Rollback]
+    
+    COMPLIANCE_AGENT --> CHECKPOINT4
+    CHECKPOINT4 --> COMPLIANCE_VALIDATOR
+    COMPLIANCE_VALIDATOR -->|Pass| ORCHESTRATION_AGENT
+    COMPLIANCE_VALIDATOR -->|Fail| ROLLBACK4[Trigger Rollback]
+    
+    ORCHESTRATION_AGENT --> CHECKPOINT5
+    CHECKPOINT5 --> WORKFLOW_VALIDATOR
+    WORKFLOW_VALIDATOR -->|Pass| SUCCESS[Migration Complete]
+    WORKFLOW_VALIDATOR -->|Fail| ROLLBACK5[Trigger Rollback]
+    
+    style SCHEMA_VALIDATOR fill:#90EE90
+    style QUERY_VALIDATOR fill:#90EE90
+    style DATA_VALIDATOR fill:#90EE90
+    style COMPLIANCE_VALIDATOR fill:#90EE90
+    style WORKFLOW_VALIDATOR fill:#90EE90
+    style SUCCESS fill:#FFD700
+    style ROLLBACK1 fill:#FFB6C1
+    style ROLLBACK2 fill:#FFB6C1
+    style ROLLBACK3 fill:#FFB6C1
+    style ROLLBACK4 fill:#FFB6C1
+    style ROLLBACK5 fill:#FFB6C1
+```
+
+---
+
+## 17. Schema Translation with Validation Flow
+
+```mermaid
+sequenceDiagram
+    participant Orchestrator
+    participant SchemaAgent as Schema Translator Agent
+    participant SchemaMCP as Schema MCP Server
+    participant SchemaValidator as Schema Validator Agent
+    participant AuditMCP as Compliance MCP (Audit)
+    
+    Orchestrator->>SchemaAgent: translate_schema(source, target)
+    
+    SchemaAgent->>SchemaMCP: get_schema(source_db)
+    SchemaMCP-->>SchemaAgent: Schema metadata + lineage
+    
+    SchemaAgent->>SchemaAgent: Map data types<br/>Convert constraints<br/>Optimize indexes
+    
+    SchemaAgent->>SchemaMCP: compare_schemas(source, translated)
+    SchemaMCP-->>SchemaAgent: Compatibility report
+    
+    SchemaAgent-->>Orchestrator: Translated schema
+    
+    Orchestrator->>SchemaValidator: validate_translation(source, translated)
+    
+    SchemaValidator->>SchemaValidator: Validate table count
+    SchemaValidator->>SchemaValidator: Validate primary keys
+    SchemaValidator->>SchemaValidator: Validate foreign keys
+    SchemaValidator->>SchemaValidator: Validate constraints
+    
+    alt Critical Issues Found
+        SchemaValidator->>AuditMCP: audit_access(validation_failed)
+        SchemaValidator-->>Orchestrator: ValidationResult(passed=False)
+        Orchestrator->>Orchestrator: Trigger automatic rollback
+    else Validation Passed
+        SchemaValidator->>AuditMCP: audit_access(validation_passed)
+        SchemaValidator-->>Orchestrator: ValidationResult(passed=True)
+        Orchestrator->>Orchestrator: Proceed to next phase
+    end
+    
+    Note over SchemaValidator,AuditMCP: Defense in Depth:<br/>Prevents AI hallucinations<br/>Ensures constraint preservation<br/>Provides audit trail
+```
+
+---
+
+## 18. Sandbox Execution Environment
+
+```mermaid
+flowchart TD
+    AI_QUERY[AI-Generated<br/>SQL Query] --> SANDBOX_ENTRY[Sandbox Entry Point]
+    
+    SANDBOX_ENTRY --> RESOURCE_LIMITS[Apply Resource Limits<br/>Max 30s execution<br/>Max 1000 rows<br/>Max 512MB memory]
+    
+    RESOURCE_LIMITS --> ISOLATED_DB[Create Isolated<br/>Database Snapshot]
+    
+    ISOLATED_DB --> EXECUTE{Execute Query<br/>in Sandbox}
+    
+    EXECUTE -->|Success| VALIDATE[Validate Results<br/>Check side effects]
+    EXECUTE -->|Timeout| FAIL1[Execution Failed:<br/>Timeout exceeded]
+    EXECUTE -->|Resource Limit| FAIL2[Execution Failed:<br/>Resource exceeded]
+    EXECUTE -->|Error| FAIL3[Execution Failed:<br/>Query error]
+    
+    VALIDATE --> SAFETY_CHECK{Safety Check}
+    
+    SAFETY_CHECK -->|Safe| APPROVE[Mark as Safe<br/>for Production]
+    SAFETY_CHECK -->|Unsafe| REJECT[Reject Query<br/>Flag for review]
+    
+    APPROVE --> CLEANUP[Destroy Sandbox]
+    REJECT --> CLEANUP
+    FAIL1 --> CLEANUP
+    FAIL2 --> CLEANUP
+    FAIL3 --> CLEANUP
+    
+    CLEANUP --> LOG[Log Execution<br/>Audit Trail]
+    
+    LOG -->|Safe| PROD[Apply to<br/>Production DB]
+    LOG -->|Unsafe| BLOCK[Block Query<br/>Alert Team]
+    
+    style ISOLATED_DB fill:#87CEEB
+    style APPROVE fill:#90EE90
+    style REJECT fill:#FFB6C1
+    style FAIL1 fill:#FFB6C1
+    style FAIL2 fill:#FFB6C1
+    style FAIL3 fill:#FFB6C1
+    style PROD fill:#FFD700
+    style BLOCK fill:#FF6B6B
+```
+
+---
+
+## 19. Drift Detection & Auto-Correction
+
+```mermaid
+flowchart LR
+    SOURCE[(Source DB<br/>PostgreSQL)] --> MONITOR[Drift Monitor<br/>Observability MCP]
+    TARGET[(Target DB<br/>MySQL)] --> MONITOR
+    
+    MONITOR --> CONTINUOUS[Continuous Monitoring<br/>Every 5 seconds]
+    
+    CONTINUOUS --> DETECT{Drift<br/>Detected?}
+    
+    DETECT -->|No Drift| CONTINUE[Continue Monitoring]
+    DETECT -->|Schema Drift| SCHEMA_DRIFT[Schema Drift:<br/>Column added/removed]
+    DETECT -->|Data Drift| DATA_DRIFT[Data Drift:<br/>Row count mismatch]
+    DETECT -->|Performance Drift| PERF_DRIFT[Performance Drift:<br/>Query slowdown]
+    
+    SCHEMA_DRIFT --> VALIDATOR[Workflow Validator Agent<br/>Analyze drift impact]
+    DATA_DRIFT --> VALIDATOR
+    PERF_DRIFT --> VALIDATOR
+    
+    VALIDATOR --> SEVERITY{Drift<br/>Severity?}
+    
+    SEVERITY -->|Critical| AUTO_ROLLBACK[Automatic Rollback<br/>Revert to snapshot]
+    SEVERITY -->|High| CORRECTIVE[Corrective Transformation<br/>Sync differences]
+    SEVERITY -->|Medium| ALERT[Alert Team<br/>Manual review]
+    SEVERITY -->|Low| LOG[Log Event<br/>Continue monitoring]
+    
+    AUTO_ROLLBACK --> RESTORE[Restore Source State]
+    CORRECTIVE --> SYNC[Synchronize Databases]
+    
+    RESTORE --> NOTIFY[Notify Team<br/>Slack MCP]
+    SYNC --> VERIFY[Verify Correction]
+    ALERT --> NOTIFY
+    LOG --> CONTINUE
+    
+    VERIFY -->|Fixed| CONTINUE
+    VERIFY -->|Not Fixed| AUTO_ROLLBACK
+    
+    style DETECT fill:#87CEEB
+    style AUTO_ROLLBACK fill:#FFB6C1
+    style CORRECTIVE fill:#FFD700
+    style VERIFY fill:#90EE90
+```
+
+---
+
+## 20. Knowledge & Context Layer with RAG
+
+```mermaid
+graph TB
+    subgraph "Schema Ingestion"
+        SOURCE_SCHEMA[Source Schema<br/>Tables, Columns, Relationships]
+        TARGET_SCHEMA[Target Schema<br/>Candidates]
+    end
+    
+    subgraph "Knowledge MCP Server"
+        EMBED[Embedding Generation<br/>text-embedding-3-large]
+        VECTOR_DB[(Vector Database<br/>Qdrant/Pinecone)]
+        SIMILARITY[Semantic Similarity<br/>Search]
+    end
+    
+    subgraph "RAG Layer - Retrieval Augmented Generation"
+        RETRIEVER[Context Retriever<br/>Find similar schemas]
+        RANKER[Ranking Algorithm<br/>Cosine similarity]
+        CONTEXT[Context Assembly<br/>Top-K results]
+    end
+    
+    subgraph "AI-Powered Mapping"
+        LLM[GPT-4o<br/>Migration Planner]
+        MAPPING[Column Mapping<br/>Generator]
+        CONFIDENCE[Confidence Scoring<br/>0.0 - 1.0]
+    end
+    
+    subgraph "Learning & Feedback"
+        FEEDBACK[User Feedback<br/>Correct/Reject]
+        FINE_TUNE[Model Fine-Tuning<br/>Learn patterns]
+        KNOWLEDGE_GRAPH[Knowledge Graph<br/>Neo4j]
+    end
+    
+    SOURCE_SCHEMA --> EMBED
+    TARGET_SCHEMA --> EMBED
+    
+    EMBED --> VECTOR_DB
+    
+    VECTOR_DB --> SIMILARITY
+    
+    SIMILARITY --> RETRIEVER
+    RETRIEVER --> RANKER
+    RANKER --> CONTEXT
+    
+    CONTEXT --> LLM
+    LLM --> MAPPING
+    MAPPING --> CONFIDENCE
+    
+    CONFIDENCE -->|High confidence > 0.8| AUTO_APPLY[Auto-apply mapping]
+    CONFIDENCE -->|Low confidence < 0.8| MANUAL_REVIEW[Flag for manual review]
+    
+    AUTO_APPLY --> FEEDBACK
+    MANUAL_REVIEW --> FEEDBACK
+    
+    FEEDBACK --> FINE_TUNE
+    FINE_TUNE --> KNOWLEDGE_GRAPH
+    KNOWLEDGE_GRAPH --> VECTOR_DB
+    
+    style VECTOR_DB fill:#DDA0DD
+    style LLM fill:#90EE90
+    style AUTO_APPLY fill:#FFD700
+    style KNOWLEDGE_GRAPH fill:#87CEEB
+```
+
+---
+
+
+## 21. Observability & Governance Stack
+
+```mermaid
+graph TB
+    subgraph "Migration Agents"
+        AGENT1[Schema Agent]
+        AGENT2[Query Agent]
+        AGENT3[Data Agent]
+        AGENT4[Compliance Agent]
+    end
+    
+    subgraph "Structured Logging"
+        LOGFIRE[Logfire Agent<br/>Distributed Tracing]
+        LOG_AGGREGATOR[Log Aggregator<br/>Centralized storage]
+    end
+    
+    subgraph "Metrics Collection"
+        PROMETHEUS[Prometheus<br/>Time-series metrics]
+        CUSTOM_METRICS[Custom Metrics<br/>Throughput, Lag, Errors]
+    end
+    
+    subgraph "Tracing"
+        TRACE_COLLECTOR[Trace Collector<br/>OpenTelemetry]
+        SPAN_STORAGE[(Span Storage<br/>Distributed traces)]
+    end
+    
+    subgraph "Audit Trail"
+        AUDIT_MCP[Compliance MCP<br/>Audit Logger]
+        AUDIT_DB[(Audit Database<br/>Immutable logs<br/>7-year retention)]
+    end
+    
+    subgraph "AI-Driven Anomaly Detection"
+        ANOMALY_DETECTOR[Anomaly Detector<br/>ML-based patterns]
+        ALERT_ENGINE[Alert Engine<br/>Slack/Email/PagerDuty]
+    end
+    
+    subgraph "Real-Time Dashboards"
+        GRAFANA[Grafana Dashboards<br/>Live metrics]
+        CUSTOM_DASH[Custom Dashboards<br/>Migration progress]
+    end
+    
+    AGENT1 --> LOGFIRE
+    AGENT2 --> LOGFIRE
+    AGENT3 --> LOGFIRE
+    AGENT4 --> LOGFIRE
+    
+    LOGFIRE --> LOG_AGGREGATOR
+    
+    AGENT1 --> PROMETHEUS
+    AGENT2 --> PROMETHEUS
+    AGENT3 --> PROMETHEUS
+    AGENT4 --> PROMETHEUS
+    
+    PROMETHEUS --> CUSTOM_METRICS
+    
+    AGENT1 --> TRACE_COLLECTOR
+    AGENT2 --> TRACE_COLLECTOR
+    AGENT3 --> TRACE_COLLECTOR
+    AGENT4 --> TRACE_COLLECTOR
+    
+    TRACE_COLLECTOR --> SPAN_STORAGE
+    
+    AGENT1 --> AUDIT_MCP
+    AGENT2 --> AUDIT_MCP
+    AGENT3 --> AUDIT_MCP
+    AGENT4 --> AUDIT_MCP
+    
+    AUDIT_MCP --> AUDIT_DB
+    
+    CUSTOM_METRICS --> ANOMALY_DETECTOR
+    SPAN_STORAGE --> ANOMALY_DETECTOR
+    
+    ANOMALY_DETECTOR -->|Anomaly found| ALERT_ENGINE
+    
+    CUSTOM_METRICS --> GRAFANA
+    PROMETHEUS --> GRAFANA
+    
+    GRAFANA --> CUSTOM_DASH
+    
+    style ANOMALY_DETECTOR fill:#FFA500
+    style ALERT_ENGINE fill:#FF6B6B
+    style AUDIT_DB fill:#87CEEB
+    style GRAFANA fill:#90EE90
+```
+
+---
+
+## 22. Resilience & Reliability Architecture
+
+```mermaid
+flowchart TD
+    START[Migration Start] --> CHECKPOINT_INIT[Initialize Checkpoint Manager]
+    
+    CHECKPOINT_INIT --> SNAPSHOT[Create Database Snapshot<br/>Full backup + transaction logs]
+    
+    SNAPSHOT --> VERSION_CONTROL[Version Control<br/>Git commit: schema + data hash]
+    
+    VERSION_CONTROL --> EXECUTE[Execute Migration Phase]
+    
+    EXECUTE --> CHECKPOINT_SAVE{Checkpoint<br/>Interval?}
+    
+    CHECKPOINT_SAVE -->|Every 5 min| SAVE_STATE[Save Migration State<br/>Progress, metadata]
+    CHECKPOINT_SAVE -->|Continue| EXECUTE
+    
+    SAVE_STATE --> EXECUTE
+    
+    EXECUTE --> ERROR{Error<br/>Occurred?}
+    
+    ERROR -->|No Error| CONTINUE{More<br/>Phases?}
+    ERROR -->|Transient Error| RETRY{Retry<br/>Count < 3?}
+    ERROR -->|Critical Error| ROLLBACK_INIT[Initiate Rollback]
+    
+    RETRY -->|Yes| BACKOFF[Exponential Backoff<br/>Wait 2^n seconds]
+    RETRY -->|No| ESCALATE[Escalate to<br/>Multi-Agent Redundancy]
+    
+    BACKOFF --> EXECUTE
+    
+    ESCALATE --> FAILOVER[Failover to<br/>Backup Agent]
+    
+    FAILOVER -->|Success| EXECUTE
+    FAILOVER -->|Failure| ROLLBACK_INIT
+    
+    CONTINUE -->|Yes| EXECUTE
+    CONTINUE -->|No| FINAL_VALIDATION[Final Validation]
+    
+    FINAL_VALIDATION --> VALIDATION_PASS{Validation<br/>Passed?}
+    
+    VALIDATION_PASS -->|Yes| COMMIT[Commit Changes<br/>Finalize migration]
+    VALIDATION_PASS -->|No| ROLLBACK_INIT
+    
+    ROLLBACK_INIT --> RESTORE_SNAPSHOT[Restore Snapshot<br/>Point-in-time recovery]
+    
+    RESTORE_SNAPSHOT --> REVERT_GIT[Git Revert<br/>Schema version rollback]
+    
+    REVERT_GIT --> CLEANUP[Cleanup Resources<br/>Release locks]
+    
+    CLEANUP --> NOTIFY_FAILURE[Notify Team<br/>Rollback complete]
+    
+    COMMIT --> SUCCESS[Migration Complete<br/>Archive checkpoints]
+    
+    style CHECKPOINT_SAVE fill:#87CEEB
+    style SAVE_STATE fill:#87CEEB
+    style RETRY fill:#FFD700
+    style FAILOVER fill:#FFA500
+    style ROLLBACK_INIT fill:#FFB6C1
+    style SUCCESS fill:#90EE90
+```
+
+---
+
+## 23. Multi-Agent Coordinator with Validators
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Orchestrator as Orchestration Agent
+    participant Schema as Schema Translator
+    participant SchemaVal as Schema Validator
+    participant Query as Query Translator
+    participant QueryVal as Query Validator
+    participant Data as Data Transformer
+    participant DataVal as Data Integrity Validator
+    participant Compliance as Compliance Agent
+    participant CompVal as Compliance Validator
+    participant Workflow as Workflow Validator
+    
+    User->>Orchestrator: Start migration
+    
+    Orchestrator->>Orchestrator: Initialize MCP servers
+    
+    Note over Orchestrator: Phase 1: Schema Translation
+    Orchestrator->>Schema: translate_schema(source, target)
+    Schema-->>Orchestrator: Translated schema
+    
+    Orchestrator->>SchemaVal: validate_translation()
+    SchemaVal->>SchemaVal: Check constraints, keys, relationships
+    
+    alt Critical Issues
+        SchemaVal-->>Orchestrator: FAIL - Critical issues
+        Orchestrator->>User: Abort migration
+    else Pass
+        SchemaVal-->>Orchestrator: PASS - Schema valid
+    end
+    
+    Note over Orchestrator: Phase 2: Query Translation
+    Orchestrator->>Query: translate_queries()
+    Query-->>Orchestrator: Translated queries
+    
+    Orchestrator->>QueryVal: validate_translation()
+    QueryVal->>QueryVal: Check semantics, performance
+    
+    alt Performance Degradation
+        QueryVal-->>Orchestrator: WARN - Performance issue
+        Orchestrator->>User: Review recommended
+    else Pass
+        QueryVal-->>Orchestrator: PASS - Queries valid
+    end
+    
+    Note over Orchestrator: Phase 3: Data Transformation
+    Orchestrator->>Data: transform_batch()
+    Data-->>Orchestrator: Transformed data
+    
+    Orchestrator->>DataVal: validate_transformation()
+    DataVal->>DataVal: Type checks, anomaly detection
+    
+    alt Anomalies Detected
+        DataVal-->>Orchestrator: WARN - Anomalies found
+        Orchestrator->>Orchestrator: Log anomalies, continue
+    else Pass
+        DataVal-->>Orchestrator: PASS - Data valid
+    end
+    
+    Note over Orchestrator: Phase 4: Compliance
+    Orchestrator->>Compliance: apply_compliance_rules()
+    Compliance-->>Orchestrator: Compliant data
+    
+    Orchestrator->>CompVal: validate_compliance()
+    CompVal->>CompVal: Check GDPR, HIPAA, PCI-DSS
+    
+    alt Compliance Violation
+        CompVal-->>Orchestrator: FAIL - Violation detected
+        Orchestrator->>User: Abort migration
+    else Pass
+        CompVal-->>Orchestrator: PASS - Compliant
+    end
+    
+    Note over Orchestrator: Phase 5: Workflow Validation
+    Orchestrator->>Workflow: validate_workflow()
+    Workflow->>Workflow: Check DAG execution, drift
+    
+    alt Drift Detected
+        Workflow-->>Orchestrator: FAIL - Drift exceeded threshold
+        Orchestrator->>Orchestrator: Trigger rollback
+        Orchestrator->>User: Migration rolled back
+    else Pass
+        Workflow-->>Orchestrator: PASS - All validations complete
+        Orchestrator->>User: Migration successful
+    end
+    
+    Note over Orchestrator,Workflow: Defense in Depth:<br/>5 validation checkpoints<br/>Automatic rollback on critical issues<br/>Complete audit trail
+```
+
+---
+
+## 24. Compliance MCP Workflow
+
+```mermaid
+flowchart TD
+    DATA_BATCH[Incoming Data Batch<br/>10,000 rows] --> SCAN[Scan for Sensitive Data<br/>PII, PHI, PCI]
+    
+    SCAN --> CLASSIFY{Data<br/>Classification}
+    
+    CLASSIFY -->|PII| PII_RULES[Apply GDPR Rules<br/>Masking, Anonymization]
+    CLASSIFY -->|PHI| PHI_RULES[Apply HIPAA Rules<br/>Encryption, Access Control]
+    CLASSIFY -->|PCI| PCI_RULES[Apply PCI-DSS Rules<br/>Tokenization, Redaction]
+    CLASSIFY -->|Non-Sensitive| PASS_THROUGH[Pass Through<br/>No transformation]
+    
+    PII_RULES --> MASKING[Data Masking<br/>Email: j***@example.com<br/>SSN: ***-**-1234]
+    PHI_RULES --> ENCRYPTION[Field-Level Encryption<br/>AES-256]
+    PCI_RULES --> TOKENIZATION[Tokenization<br/>Card: tok_xxxxxxxxxxxx]
+    
+    MASKING --> VALIDATE_PII[Compliance Validator<br/>Verify GDPR compliance]
+    ENCRYPTION --> VALIDATE_PHI[Compliance Validator<br/>Verify HIPAA compliance]
+    TOKENIZATION --> VALIDATE_PCI[Compliance Validator<br/>Verify PCI-DSS compliance]
+    PASS_THROUGH --> AUDIT
+    
+    VALIDATE_PII --> COMPLIANT1{Compliant?}
+    VALIDATE_PHI --> COMPLIANT2{Compliant?}
+    VALIDATE_PCI --> COMPLIANT3{Compliant?}
+    
+    COMPLIANT1 -->|Yes| AUDIT[Audit Log<br/>Compliance MCP]
+    COMPLIANT1 -->|No| REJECT1[Reject Batch<br/>Critical violation]
+    
+    COMPLIANT2 -->|Yes| AUDIT
+    COMPLIANT2 -->|No| REJECT2[Reject Batch<br/>Critical violation]
+    
+    COMPLIANT3 -->|Yes| AUDIT
+    COMPLIANT3 -->|No| REJECT3[Reject Batch<br/>Critical violation]
+    
+    AUDIT --> IMMUTABLE_LOG[(Immutable Audit Log<br/>PostgreSQL<br/>7-year retention)]
+    
+    IMMUTABLE_LOG --> REPORT[Generate Compliance Report<br/>Quarterly audit]
+    
+    REJECT1 --> ALERT[Alert Compliance Team<br/>Slack/Email]
+    REJECT2 --> ALERT
+    REJECT3 --> ALERT
+    
+    REPORT --> ARCHIVE[Archive Report<br/>S3/GCS]
+    
+    style VALIDATE_PII fill:#90EE90
+    style VALIDATE_PHI fill:#90EE90
+    style VALIDATE_PCI fill:#90EE90
+    style REJECT1 fill:#FF6B6B
+    style REJECT2 fill:#FF6B6B
+    style REJECT3 fill:#FF6B6B
+    style IMMUTABLE_LOG fill:#87CEEB
+    style ARCHIVE fill:#FFD700
+```
+
+---
+
+
+## 25. Security & IAM Architecture
+
+```mermaid
+graph TB
+    subgraph "Authentication Layer"
+        USER[User/Service] --> AUTH[OAuth 2.0 + JWT]
+        AUTH --> MFA{MFA<br/>Required?}
+        MFA -->|Yes| TOTP[TOTP/SMS<br/>Verification]
+        MFA -->|No| AUTHZ
+        TOTP --> AUTHZ[Authorization<br/>Check]
+    end
+    
+    subgraph "Role-Based Access Control"
+        AUTHZ --> RBAC{User<br/>Role?}
+        RBAC -->|Admin| ADMIN_PERMS[Full Access<br/>All operations]
+        RBAC -->|Engineer| ENG_PERMS[Limited Access<br/>Execute migrations]
+        RBAC -->|Reviewer| REV_PERMS[Read-Only<br/>Review & approve]
+        RBAC -->|Auditor| AUD_PERMS[Audit Logs<br/>Compliance reports]
+    end
+    
+    subgraph "Secrets Vault Integration"
+        ADMIN_PERMS --> VAULT[HashiCorp Vault<br/>Secrets Manager]
+        ENG_PERMS --> VAULT
+        REV_PERMS --> VAULT_RO[Vault Read-Only]
+        AUD_PERMS --> AUDIT_ONLY[Audit Logs Only]
+        
+        VAULT --> DB_CREDS[Database Credentials<br/>Encrypted at rest]
+        VAULT --> API_KEYS[API Keys<br/>Rotation policy: 90 days]
+        VAULT --> CERT_STORE[TLS Certificates<br/>Auto-renewal]
+    end
+    
+    subgraph "Encryption Layer"
+        DB_CREDS --> ENCRYPT_REST[Encryption at Rest<br/>AES-256]
+        API_KEYS --> ENCRYPT_REST
+        CERT_STORE --> ENCRYPT_TRANSIT[Encryption in Transit<br/>TLS 1.3]
+    end
+    
+    subgraph "Database Access"
+        ENCRYPT_REST --> DB_CONNECT[Secure DB Connection]
+        ENCRYPT_TRANSIT --> DB_CONNECT
+        
+        DB_CONNECT --> SOURCE_DB[(Source Database<br/>TLS 1.3)]
+        DB_CONNECT --> TARGET_DB[(Target Database<br/>TLS 1.3)]
+    end
+    
+    subgraph "Audit & Compliance"
+        DB_CONNECT --> AUDIT_LOG[Audit Logger<br/>All operations logged]
+        AUDIT_LOG --> IMMUTABLE[(Immutable Logs<br/>PostgreSQL<br/>7-year retention)]
+        IMMUTABLE --> SIEM[SIEM Integration<br/>Security monitoring]
+    end
+    
+    style AUTH fill:#FFA07A
+    style VAULT fill:#90EE90
+    style ENCRYPT_REST fill:#87CEEB
+    style ENCRYPT_TRANSIT fill:#87CEEB
+    style IMMUTABLE fill:#FFD700
+```
+
+---
+
+## 26. Runtime & Deployment Architecture
+
+```mermaid
+graph TB
+    subgraph "Source Control"
+        GIT[Git Repository<br/>GitHub/GitLab]
+        GIT --> BRANCH[Feature Branch<br/>schema-migration-v2]
+    end
+    
+    subgraph "CI/CD Pipeline"
+        BRANCH --> TRIGGER[Pipeline Trigger<br/>GitHub Actions]
+        TRIGGER --> BUILD[Build Stage<br/>Docker image]
+        BUILD --> TEST[Test Stage<br/>Unit + Integration]
+        TEST --> SCAN[Security Scan<br/>Trivy + Snyk]
+        SCAN --> PUSH[Push to Registry<br/>Docker Hub/ECR]
+    end
+    
+    subgraph "Containerized Execution"
+        PUSH --> DOCKER_IMAGE[Docker Image<br/>migration-agent:v2.0]
+        DOCKER_IMAGE --> K8S[Kubernetes 1.32<br/>Orchestration]
+    end
+    
+    subgraph "Cloud-Native Scaling"
+        K8S --> HPA[Horizontal Pod Autoscaler<br/>CPU > 70% → scale]
+        K8S --> VPA[Vertical Pod Autoscaler<br/>Memory optimization]
+        
+        HPA --> PODS[Migration Agent Pods<br/>3-10 replicas]
+        VPA --> PODS
+        
+        PODS --> SERVERLESS{Workload<br/>Type?}
+        
+        SERVERLESS -->|Batch| BATCH_JOBS[Kubernetes Jobs<br/>One-time migrations]
+        SERVERLESS -->|Continuous| DEPLOYMENTS[Kubernetes Deployments<br/>Always-on agents]
+        SERVERLESS -->|Event-Driven| KNATIVE[Knative Functions<br/>Serverless triggers]
+    end
+    
+    subgraph "Resource Management"
+        BATCH_JOBS --> RESOURCE_QUOTA[Resource Quotas<br/>CPU: 4 cores<br/>Memory: 8GB]
+        DEPLOYMENTS --> RESOURCE_QUOTA
+        KNATIVE --> RESOURCE_QUOTA
+        
+        RESOURCE_QUOTA --> NODE_AFFINITY[Node Affinity<br/>High-memory nodes]
+    end
+    
+    subgraph "Monitoring & Rollback"
+        NODE_AFFINITY --> PROMETHEUS[Prometheus<br/>Metrics collection]
+        PROMETHEUS --> GRAFANA[Grafana<br/>Dashboards]
+        
+        GRAFANA --> ALERT{Alert<br/>Triggered?}
+        
+        ALERT -->|Yes| AUTO_ROLLBACK[Automatic Rollback<br/>Previous version]
+        ALERT -->|No| HEALTHY[Deployment Healthy]
+        
+        AUTO_ROLLBACK --> ROLLBACK_COMPLETE[Rollback Complete<br/>Notify team]
+    end
+    
+    subgraph "GitOps Workflow"
+        HEALTHY --> ARGOCD[ArgoCD<br/>GitOps controller]
+        ARGOCD --> SYNC[Sync State<br/>Git → Cluster]
+        SYNC --> VERSION_CONTROL[Version Control<br/>Schema migrations tracked]
+    end
+    
+    style DOCKER_IMAGE fill:#87CEEB
+    style PODS fill:#90EE90
+    style HPA fill:#FFD700
+    style AUTO_ROLLBACK fill:#FFB6C1
+    style ARGOCD fill:#DDA0DD
+```
+
+---
+
+
+
+---
+
+**Status:** ✅ Complete - 26 Comprehensive System Diagrams
+
+**Diagram Summary:**
+1. Complete System Architecture - Full component layout with all MCP servers
+2. Migration Workflow - End-to-end sequence
+3. Schema Discovery and Analysis - Parallel extraction pipeline
+4. AI Migration Planning - LLM-powered strategy generation
+5. Parallel Data Migration - Worker pool architecture
+6. Zero-Downtime Migration Strategy - CDC-based replication
+7. Code Analysis and Query Rewriting - AST parsing workflow
+8. Data Validation Pipeline - Multi-stage verification
+9. Rollback Mechanism - State machine for recovery
+10. Schema Translation - DDL conversion pipeline
+11. Connection String Management - Configuration updates
+12. Real-Time Monitoring Dashboard - Observability stack
+13. Multi-Tenancy Architecture - Resource isolation
+14. Security Architecture - Defense-in-depth layers
+15. Deployment Architecture - Kubernetes cluster layout
+16. **Agent-Validator Pattern Overview** - Defense-in-depth validation with 5 checkpoint pairs
+17. **Schema Translation with Validation Flow** - Agent-Validator coordination sequence
+18. **Sandbox Execution Environment** - Isolated runtime for AI-generated queries with safety checks
+19. **Drift Detection & Auto-Correction** - Continuous monitoring with automatic rollback/correction
+20. **Knowledge & Context Layer with RAG** - Vector DB + semantic similarity for schema mapping
+21. **Observability & Governance Stack** - Structured logging, metrics, tracing, audit trails, AI anomaly detection
+22. **Resilience & Reliability Architecture** - Checkpointing, retries, rollback, version control, multi-agent redundancy
+23. **Multi-Agent Coordinator with Validators** - Complete validation pipeline with all 5 agent-validator pairs
+24. **Compliance MCP Workflow** - GDPR/HIPAA/PCI-DSS enforcement with data masking, encryption, tokenization
+25. **Security & IAM Architecture** - RBAC, MFA, secrets vault, encryption at rest/in-transit
+26. **Runtime & Deployment Architecture** - CI/CD, containerized execution, cloud-native scaling, GitOps
+
+**New Architectural Enhancements (Diagrams 16-26):**
+- ✅ Agent-Validator Pattern for defense-in-depth validation
+- ✅ Sandbox Execution Environment preventing AI hallucinations
+- ✅ Drift Detection & Auto-Correction with validator-triggered rollback
+- ✅ Knowledge & Context Layer with vector embeddings and RAG
+- ✅ Observability & Governance with AI-driven anomaly detection
+- ✅ Resilience & Reliability with checkpointing and multi-agent redundancy
+- ✅ Compliance MCP Workflow for regulatory enforcement
+- ✅ Security & IAM with RBAC, MFA, and secrets vault
+- ✅ Runtime & Deployment with CI/CD, Kubernetes, and GitOps
+
+**Rendering:** All diagrams use Mermaid syntax compatible with GitHub, GitLab, VS Code, Notion, and Confluence
+
+**Technology Versions (June 2026):**
+- Golang: 1.26.4
+- Python: 3.13
+- PostgreSQL: 17.2
+- Redis: 7.4
+- Kafka: 3.8
+- Kubernetes: 1.32
+- Neo4j: 5.26
+- Next.js: 16
+- Docker: 27+
+- ArgoCD: Latest
+
+---
+
+**Document Complete**  
+**Version:** 2.0  
+**Date:** June 25, 2026
