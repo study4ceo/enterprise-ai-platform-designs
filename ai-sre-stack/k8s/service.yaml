@@ -1,0 +1,30 @@
+# Service for the AI SRE Orchestrator
+# (Optional - only needed if exposing metrics or webhook endpoints)
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-sre-orchestrator
+  namespace: ai-sre-stack
+  labels:
+    app: ai-sre-orchestrator
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+spec:
+  type: ClusterIP
+  selector:
+    app: ai-sre-orchestrator
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  
+  # Uncomment if you need metrics endpoint
+  # - name: metrics
+  #   port: 9090
+  #   targetPort: 9090
+  #   protocol: TCP
+  
+  sessionAffinity: None

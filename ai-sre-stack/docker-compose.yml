@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-sre-orchestrator
+    restart: unless-stopped
+    
+    environment:
+      # Orchestration settings
+      - OBSERVATION_INTERVAL=60
+      - DRY_RUN=false
+      - AUTO_REMEDIATION=true
+      
+      # Security controls
+      - SECURITY_ENABLE_ACTION_WHITELIST=true
+      - SECURITY_ENABLE_RATE_LIMITING=true
+      - SECURITY_ENABLE_AUDIT_LOGGING=true
+      - SECURITY_ENABLE_APPROVAL_WORKFLOW=true
+      
+      # Rate limits
+      - SECURITY_MAX_ACTIONS_PER_MINUTE=10
+      - SECURITY_MAX_ACTIONS_PER_HOUR=100
+      - SECURITY_MAX_ACTIONS_PER_DAY=500
+      
+      # AWS
+      - AWS_REGION=us-east-1
+      
+      # Kubernetes
+      - K8S_NAMESPACE=default
+      
+      # Slack
+      - SLACK_CHANNEL=#sre-alerts
+      
+      # Vault
+      - VAULT_URL=http://vault:8200
+      - VAULT_MOUNT_POINT=secret
+    
+    # Load secrets from .env file
+    env_file:
+      - .env
+    
+    volumes:
+      # Audit logs
+      - ./logs:/app/logs
+      
+      # Kubeconfig (if running outside k8s)
+      - ~/.kube/config:/app/.kube/config:ro
+      
+      # Runbooks
+      - ./runbooks:/app/runbooks:ro
+    
+    networks:
+      - sre-network
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  sre-network:
+    driver: bridge

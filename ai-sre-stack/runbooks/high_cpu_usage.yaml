@@ -1,0 +1,50 @@
+id: high_cpu_usage
+title: High CPU Usage Remediation
+category: performance
+severity: high
+tags:
+  - performance
+  - cpu
+  - kubernetes
+description: Steps to remediate high CPU usage in Kubernetes pods
+
+steps:
+  - name: Identify high CPU pods
+    description: Check which pods are consuming high CPU
+    action: kubernetes
+    command: observe
+    expected_outcome: List of pods with CPU usage > 80%
+    
+  - name: Check pod logs
+    description: Review logs for errors or unusual activity
+    action: kubernetes
+    command: get_logs
+    params:
+      tail_lines: 100
+    expected_outcome: Log entries showing errors or heavy processing
+    
+  - name: Scale deployment
+    description: Increase replica count to distribute load
+    action: kubernetes
+    command: scale_deployment
+    params:
+      replicas: auto  # Will be determined based on current load
+    expected_outcome: Additional pods created and load distributed
+    
+  - name: Monitor metrics
+    description: Verify CPU usage has decreased
+    action: datadog
+    command: query_metrics
+    params:
+      query: "avg:kubernetes.cpu.usage{*}"
+    expected_outcome: CPU usage below 70%
+    wait_time: 300  # Wait 5 minutes
+    
+  - name: Create incident if not resolved
+    description: Escalate if issue persists
+    action: pagerduty
+    command: create_incident
+    condition: cpu_still_high
+    params:
+      title: "High CPU usage not resolved after scaling"
+      urgency: high

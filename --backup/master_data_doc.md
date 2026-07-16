@@ -6922,13 +6922,4 @@ THEN mandatory_security_training = TRUE
 6. Technology enablement
 7. Continuous improvement
 
-**Remember:**
-- Governance enables, not restricts
-- Focus on outcomes, not activities
-- Start small, demonstrate value
-- Make it easy to do the right thing
-- People, process, then technology
-- Measure and communicate
-- Iterate and improve
-
----
+---=====================================================---

@@ -1,0 +1,244 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-sre-orchestrator
+  namespace: ai-sre-stack
+  labels:
+    app: ai-sre-orchestrator
+    version: v1.0.0
+spec:
+  replicas: 1  # Start with 1, scale later with leader election
+  
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
+  selector:
+    matchLabels:
+      app: ai-sre-orchestrator
+  
+  template:
+    metadata:
+      labels:
+        app: ai-sre-orchestrator
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    
+    spec:
+      serviceAccountName: ai-sre-sa
+      
+      # Security context for the pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      containers:
+      - name: orchestrator
+        image: your-registry/ai-sre-stack:latest
+        imagePullPolicy: Always
+        
+        # Security context for container
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false  # Need to write logs
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+        
+        # Environment variables from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: ai-sre-config
+        
+        # Environment variables from Secrets
+        env:
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: ANTHROPIC_API_KEY
+        
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: AWS_ACCESS_KEY_ID
+              optional: true
+        
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: AWS_SECRET_ACCESS_KEY
+              optional: true
+        
+        - name: DATADOG_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: DATADOG_API_KEY
+              optional: true
+        
+        - name: DATADOG_APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: DATADOG_APP_KEY
+              optional: true
+        
+        - name: PAGERDUTY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: PAGERDUTY_API_KEY
+              optional: true
+        
+        - name: PAGERDUTY_SERVICE_ID
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: PAGERDUTY_SERVICE_ID
+              optional: true
+        
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: GITHUB_TOKEN
+              optional: true
+        
+        - name: ARGOCD_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: ARGOCD_TOKEN
+              optional: true
+        
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: SLACK_BOT_TOKEN
+              optional: true
+        
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ai-sre-secrets
+              key: VAULT_TOKEN
+              optional: true
+        
+        # Resource requests and limits
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        
+        # Volume mounts
+        volumeMounts:
+        - name: audit-logs
+          mountPath: /app/logs
+        
+        - name: runbooks
+          mountPath: /app/runbooks
+          readOnly: true
+        
+        # Optional: Mount kubeconfig if accessing external cluster
+        # - name: kubeconfig
+        #   mountPath: /app/.kube
+        #   readOnly: true
+        
+        # Liveness probe - is the container alive?
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        # Readiness probe - is the container ready to serve?
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        # Startup probe - for slow-starting containers
+        startupProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 10
+      
+      # Volumes
+      volumes:
+      - name: audit-logs
+        persistentVolumeClaim:
+          claimName: audit-logs-pvc
+      
+      - name: runbooks
+        configMap:
+          name: ai-sre-runbooks
+          optional: true
+      
+      # Optional: External kubeconfig
+      # - name: kubeconfig
+      #   secret:
+      #     secretName: external-kubeconfig
+      #     optional: true
+      
+      # Restart policy
+      restartPolicy: Always
+      
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+      
+      # Node selector (optional)
+      # nodeSelector:
+      #   workload: sre-tools
+      
+      # Tolerations (optional)
+      # tolerations:
+      # - key: "dedicated"
+      #   operator: "Equal"
+      #   value: "sre"
+      #   effect: "NoSchedule"
+      
+      # Affinity rules (optional)
+      # affinity:
+      #   podAntiAffinity:
+      #     preferredDuringSchedulingIgnoredDuringExecution:
+      #     - weight: 100
+      #       podAffinityTerm:
+      #         labelSelector:
+      #           matchExpressions:
+      #           - key: app
+      #             operator: In
+      #             values:
+      #             - ai-sre-orchestrator
+      #         topologyKey: kubernetes.io/hostname

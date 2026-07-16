@@ -1,0 +1,39 @@
+# PersistentVolumeClaim for audit logs storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audit-logs-pvc
+  namespace: ai-sre-stack
+  labels:
+    app: ai-sre-orchestrator
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  # Uncomment and set your storage class
+  # storageClassName: standard
+  # 
+  # Common storage classes:
+  # - AWS EKS: gp2, gp3
+  # - Azure AKS: default, managed-premium
+  # - GCP GKE: standard, standard-rwo
+  # - On-premise: depends on your setup
+
+---
+# Optional: PVC for runbooks (if you want to mount external runbooks)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: runbooks-pvc
+  namespace: ai-sre-stack
+  labels:
+    app: ai-sre-orchestrator
+spec:
+  accessModes:
+  - ReadOnlyMany  # Multiple pods can read
+  resources:
+    requests:
+      storage: 1Gi
+  # storageClassName: standard

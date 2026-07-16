@@ -1,0 +1,123 @@
+id: security_incident_response
+title: Security Incident Response
+category: security
+severity: critical
+tags:
+  - security
+  - guardduty
+  - cloudtrail
+  - incident-response
+description: Response procedure for security incidents detected by GuardDuty
+
+steps:
+  - name: Check GuardDuty findings
+    description: Review all active security findings
+    action: guardduty
+    command: observe
+    expected_outcome: List of security findings with severity levels
+    
+  - name: Get CloudTrail context
+    description: Review recent API activity for suspicious patterns
+    action: cloudtrail
+    command: lookup_events
+    params:
+      max_results: 100
+    expected_outcome: Recent API calls showing potential attack vectors
+    
+  - name: Identify affected resources
+    description: Determine which EC2 instances, S3 buckets, or IAM users are involved
+    action: guardduty
+    command: get_finding_details
+    expected_outcome: Detailed resource information from findings
+    
+  - name: Check Kubernetes pods (if applicable)
+    description: Verify if compromised instances are running Kubernetes workloads
+    action: kubernetes
+    command: observe
+    expected_outcome: Pod status on potentially compromised nodes
+    
+  - name: Isolate affected instances
+    description: Stop or isolate compromised EC2 instances
+    action: aws
+    command: stop_instance
+    condition: high_severity_finding
+    params:
+      instance_id: from_finding
+    expected_outcome: Instance stopped to prevent further damage
+    
+  - name: Revoke suspicious credentials
+    description: Deactivate access keys showing unusual activity
+    action: aws
+    command: deactivate_access_key
+    condition: credential_compromise
+    params:
+      access_key_id: from_cloudtrail
+    expected_outcome: Compromised credentials deactivated
+    
+  - name: Create PagerDuty incident
+    description: Alert security team
+    action: pagerduty
+    command: create_incident
+    params:
+      title: "Security incident detected by GuardDuty"
+      urgency: high
+      body:
+        type: incident_body
+        details: "GuardDuty findings require immediate investigation"
+    expected_outcome: Security team alerted
+    
+  - name: Post to Slack security channel
+    description: Notify team with incident details
+    action: slack
+    command: post_message
+    params:
+      channel: "#security-incidents"
+      text: |
+        🚨 SECURITY INCIDENT DETECTED 🚨
+        
+        GuardDuty has detected a security threat.
+        PagerDuty incident created.
+        Affected resources have been isolated.
+        
+        See PagerDuty for full details.
+    expected_outcome: Team notified via Slack
+    
+  - name: Archive resolved findings
+    description: Mark findings as resolved after remediation
+    action: guardduty
+    command: archive_findings
+    condition: incident_resolved
+    params:
+      finding_ids: from_response
+    expected_outcome: Findings archived in GuardDuty
+    
+  - name: Document incident
+    description: Create GitHub issue for post-mortem
+    action: github
+    command: create_issue
+    params:
+      title: "Security Incident Post-Mortem"
+      body: "Document the security incident, timeline, and remediation steps"
+      labels: ["security", "incident", "post-mortem"]
+    expected_outcome: GitHub issue created for documentation
+    
+  - name: Update runbook if needed
+    description: Review and update this runbook based on learnings
+    action: runbook
+    command: update_runbook
+    manual: true
+    expected_outcome: Runbook improved for future incidents
+
+metadata:
+  last_updated: 2026-07-15
+  owner: security-team
+  escalation_policy: security-oncall
+  compliance:
+    - SOC2
+    - ISO27001
+  
+references:
+  - title: AWS GuardDuty Best Practices
+    url: https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_best-practices.html
+  - title: Incident Response Framework
+    url: https://www.sans.org/incident-response/

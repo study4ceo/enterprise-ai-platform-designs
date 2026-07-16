@@ -1,0 +1,74 @@
+id: deployment_failure
+title: Deployment Failure Recovery
+category: cicd
+severity: critical
+tags:
+  - deployment
+  - argocd
+  - rollback
+description: Steps to handle failed deployments and rollback if necessary
+
+steps:
+  - name: Check Argo CD sync status
+    description: Verify deployment status in Argo CD
+    action: argocd
+    command: get_app_details
+    expected_outcome: Sync status and health information
+    
+  - name: Review GitHub PR
+    description: Check if there are recent PRs that might have caused issues
+    action: github
+    command: list_prs
+    params:
+      state: closed
+      limit: 5
+    expected_outcome: Recent merged PRs
+    
+  - name: Check application logs
+    description: Review pod logs for deployment errors
+    action: kubernetes
+    command: get_logs
+    params:
+      tail_lines: 200
+    expected_outcome: Error messages related to deployment
+    
+  - name: Notify team via Slack
+    description: Alert the team about deployment failure
+    action: slack
+    command: post_message
+    params:
+      text: "🚨 Deployment failure detected. Investigating..."
+    expected_outcome: Message posted to incidents channel
+    
+  - name: Attempt Argo CD refresh
+    description: Refresh Argo CD to retry sync
+    action: argocd
+    command: refresh_app
+    expected_outcome: Application refreshed
+    wait_time: 60
+    
+  - name: Rollback if still failing
+    description: Rollback to previous working version
+    action: argocd
+    command: rollback_app
+    condition: still_unhealthy
+    params:
+      revision: previous
+    expected_outcome: Application rolled back to stable version
+    
+  - name: Create PagerDuty incident
+    description: Create high priority incident
+    action: pagerduty
+    command: create_incident
+    params:
+      title: "Deployment failure - rollback executed"
+      urgency: high
+    expected_outcome: Incident created and on-call engineer notified
+    
+  - name: Post status update
+    description: Update Slack with resolution status
+    action: slack
+    command: post_message
+    params:
+      text: "✅ Deployment issue resolved via rollback. Investigation ongoing."
+    expected_outcome: Team notified of resolution

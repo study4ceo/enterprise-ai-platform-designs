@@ -1,0 +1,121 @@
+# Service Account for AI SRE Orchestrator
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-sre-sa
+  namespace: ai-sre-stack
+  labels:
+    app: ai-sre-orchestrator
+
+---
+# ClusterRole - Defines permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ai-sre-role
+  labels:
+    app: ai-sre-orchestrator
+rules:
+# Pods - read and limited write
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "delete"]
+
+# Pod logs - read only
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get", "list"]
+
+# Services - read only
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch"]
+
+# Events - read only
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+
+# Namespaces - read only
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list"]
+
+# Deployments - read and scale
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "patch", "update"]
+
+# Deployments scale - for scaling operations
+- apiGroups: ["apps"]
+  resources: ["deployments/scale"]
+  verbs: ["get", "update", "patch"]
+
+# ReplicaSets - read only
+- apiGroups: ["apps"]
+  resources: ["replicasets"]
+  verbs: ["get", "list", "watch"]
+
+# StatefulSets - read and limited write
+- apiGroups: ["apps"]
+  resources: ["statefulsets"]
+  verbs: ["get", "list", "watch", "patch", "update"]
+
+# ConfigMaps - read only (for observability)
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
+
+# Secrets - read only (for observability, be careful!)
+# Uncomment if needed, but consider security implications
+# - apiGroups: [""]
+#   resources: ["secrets"]
+#   verbs: ["get", "list"]
+
+---
+# ClusterRoleBinding - Binds the role to the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ai-sre-binding
+  labels:
+    app: ai-sre-orchestrator
+subjects:
+- kind: ServiceAccount
+  name: ai-sre-sa
+  namespace: ai-sre-stack
+roleRef:
+  kind: ClusterRole
+  name: ai-sre-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Optional: Role for namespace-specific operations
+# Uncomment if you want to limit permissions to specific namespace
+#
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: Role
+# metadata:
+#   name: ai-sre-namespace-role
+#   namespace: default  # Target namespace
+# rules:
+# - apiGroups: [""]
+#   resources: ["pods", "services"]
+#   verbs: ["get", "list", "watch", "delete"]
+# - apiGroups: ["apps"]
+#   resources: ["deployments"]
+#   verbs: ["get", "list", "watch", "patch", "update"]
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   name: ai-sre-namespace-binding
+#   namespace: default
+# subjects:
+# - kind: ServiceAccount
+#   name: ai-sre-sa
+#   namespace: ai-sre-stack
+# roleRef:
+#   kind: Role
+#   name: ai-sre-namespace-role
+#   apiGroup: rbac.authorization.k8s.io

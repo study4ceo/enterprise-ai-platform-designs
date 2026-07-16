@@ -888,5 +888,3 @@ Choose based on:
 ---
 
 **Status:** All 15 architecture patterns completed ✅
-
-**Related:** [README](README.md) | [Data Governance Guide](data-governance-guide.md) | [Technology Stack](technology-stack.md)

@@ -1,0 +1,121 @@
+# Network Policies for AI SRE Orchestrator
+# (Optional - provides network-level security)
+
+# Default: Deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-sre-deny-all-ingress
+  namespace: ai-sre-stack
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-sre-orchestrator
+  policyTypes:
+  - Ingress
+
+---
+# Allow specific ingress (e.g., from Prometheus for metrics)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-sre-allow-monitoring
+  namespace: ai-sre-stack
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-sre-orchestrator
+  policyTypes:
+  - Ingress
+  ingress:
+  # Allow Prometheus to scrape metrics
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+# Allow egress to external services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ai-sre-allow-egress
+  namespace: ai-sre-stack
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-sre-orchestrator
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS resolution
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+  
+  # Allow Kubernetes API access
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          component: apiserver
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow external HTTPS (Anthropic API, AWS, etc.)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+  
+  # Allow Vault access (if in-cluster)
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: vault
+    - podSelector:
+        matchLabels:
+          app: vault
+    ports:
+    - protocol: TCP
+      port: 8200
+  
+  # Allow Argo CD access (if in-cluster)
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: argocd
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: argocd-server
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+
+---
+# Note: Network policies require a CNI plugin that supports them:
+# - Calico
+# - Cilium
+# - Weave Net
+# - Azure NPM (AKS)
+# - GCP network policy (GKE)
+#
+# Apply network policies:
+# kubectl apply -f networkpolicy.yaml
+#
+# Test connectivity:
+# kubectl exec -it deployment/ai-sre-orchestrator -n ai-sre-stack -- curl https://api.anthropic.com
