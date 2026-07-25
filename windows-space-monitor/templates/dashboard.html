@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Space Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-stop {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn-stop:hover {
+            background: #d32f2f;
+        }
+
+        .btn-stop:active {
+            background: #b71c1c;
+        }
+
+        .disk-info {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .disk-bar {
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .disk-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #FFC107 50%, #F44336 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .alert-red {
+            background: #ffebee !important;
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .alert-yellow {
+            background: #fff9c4 !important;
+            color: #f57f17;
+        }
+
+        .alert-green {
+            background: #e8f5e9 !important;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-red {
+            background: #f44336;
+            color: white;
+        }
+
+        .badge-yellow {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .badge-green {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-open {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-open:hover {
+            background: #5568d3;
+        }
+
+        .btn-open:active {
+            background: #4451b8;
+        }
+
+        .refresh-info {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>🖥️ Windows Space Monitor</span>
+            <button class="btn-stop" onclick="stopServer()">⏹️ Stop Server</button>
+        </h1>
+
+        <div class="disk-info">
+            <h2>C: Drive Usage</h2>
+            <div class="disk-bar">
+                <div class="disk-bar-fill" id="diskBarFill">
+                    <span id="diskPercent">Loading...</span>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalSpace">--</div>
+                    <div class="stat-label">Total Space</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="usedSpace">--</div>
+                    <div class="stat-label">Used Space</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="freeSpace">--</div>
+                    <div class="stat-label">Free Space</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">📁 Top Folders by Size (Change in Size)</div>
+            <div id="foldersTable" class="loading">Scanning folders...</div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">⚙️ Processes with High Disk I/O</div>
+            <div id="processesTable" class="loading">Loading processes...</div>
+        </div>
+
+        <div class="refresh-info">
+            Auto-refresh every 60 seconds
+        </div>
+    </div>
+
+    <script>
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatRate(bytesPerMinute) {
+            if (bytesPerMinute < 0) return '0 B/min';
+            return formatBytes(bytesPerMinute) + '/min';
+        }
+
+        // Open folder in Windows Explorer
+        function openFolder(path) {
+            fetch('/api/open-folder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ path: path })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to open folder: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error opening folder:', error);
+                alert('Failed to open folder');
+            });
+        }
+
+        // Stop the server
+        function stopServer() {
+            if (confirm('Are you sure you want to stop the server?\n\nYou will need to restart it from the command line.')) {
+                fetch('/api/shutdown', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Server is shutting down...\n\nYou can close this window.');
+                    document.body.innerHTML = '<div style="text-align: center; padding: 100px; font-size: 24px; color: white;">Server stopped. You can close this window.</div>';
+                })
+                .catch(error => {
+                    console.log('Server stopped');
+                    document.body.innerHTML = '<div style="text-align: center; padding: 100px; font-size: 24px; color: white;">Server stopped. You can close this window.</div>';
+                });
+            }
+        }
+
+        // Step 1: Load disk info first (fastest)
+        function loadDiskInfo() {
+            fetch('/api/disk')
+                .then(response => response.json())
+                .then(disk => {
+                    document.getElementById('diskPercent').textContent = disk.percent.toFixed(1) + '%';
+                    document.getElementById('diskBarFill').style.width = disk.percent + '%';
+                    document.getElementById('totalSpace').textContent = disk.total_gb.toFixed(1) + ' GB';
+                    document.getElementById('usedSpace').textContent = disk.used_gb.toFixed(1) + ' GB';
+                    document.getElementById('freeSpace').textContent = disk.free_gb.toFixed(1) + ' GB';
+                })
+                .catch(error => console.error('Error fetching disk info:', error));
+        }
+
+        // Step 2: Load folders data (slower, lazy load)
+        function loadFolders() {
+            document.getElementById('foldersTable').innerHTML = '<div class="loading">Scanning folders...</div>';
+            
+            fetch('/api/folders')
+                .then(response => response.json())
+                .then(folders => {
+                    let foldersHtml = '<table><thead><tr><th>Action</th><th>Folder Path</th><th>Size</th><th>Δ 1min</th><th>Δ 10min</th><th>Δ 30min</th><th>Alert</th></tr></thead><tbody>';
+                    folders.forEach(folder => {
+                        const alertClass = 'alert-' + folder.alert;
+                        const badgeClass = 'badge-' + folder.alert;
+                        const change1 = folder.change_1min_mb >= 0 ? '+' + folder.change_1min_mb.toFixed(2) : folder.change_1min_mb.toFixed(2);
+                        const change10 = folder.change_10min_mb >= 0 ? '+' + folder.change_10min_mb.toFixed(2) : folder.change_10min_mb.toFixed(2);
+                        const change30 = folder.change_30min_mb >= 0 ? '+' + folder.change_30min_mb.toFixed(2) : folder.change_30min_mb.toFixed(2);
+                        
+                        foldersHtml += `<tr class="${alertClass}">
+                            <td><button class="btn-open" onclick="openFolder('${folder.path.replace(/\\/g, '\\\\')}')">📂 Open</button></td>
+                            <td>${folder.path}</td>
+                            <td>${folder.size_mb.toFixed(2)} MB</td>
+                            <td><strong>${change1} MB</strong></td>
+                            <td><strong>${change10} MB</strong></td>
+                            <td><strong>${change30} MB</strong></td>
+                            <td><span class="badge ${badgeClass}">${folder.alert.toUpperCase()}</span></td>
+                        </tr>`;
+                    });
+                    foldersHtml += '</tbody></table>';
+                    document.getElementById('foldersTable').innerHTML = foldersHtml;
+                })
+                .catch(error => {
+                    console.error('Error fetching folders:', error);
+                    document.getElementById('foldersTable').innerHTML = '<div class="loading">Error loading folders</div>';
+                });
+        }
+
+        // Step 3: Load processes data (lazy load)
+        function loadProcesses() {
+            document.getElementById('processesTable').innerHTML = '<div class="loading">Loading processes...</div>';
+            
+            fetch('/api/processes')
+                .then(response => response.json())
+                .then(processes => {
+                    let processesHtml = '<table><thead><tr><th>PID</th><th>Process Name</th><th>Read</th><th>Write</th><th>Total I/O</th></tr></thead><tbody>';
+                    processes.forEach(proc => {
+                        const totalIO = proc.read_mb + proc.write_mb;
+                        processesHtml += `<tr>
+                            <td>${proc.pid}</td>
+                            <td>${proc.name}</td>
+                            <td>${proc.read_mb.toFixed(2)} MB</td>
+                            <td>${proc.write_mb.toFixed(2)} MB</td>
+                            <td><strong>${totalIO.toFixed(2)} MB</strong></td>
+                        </tr>`;
+                    });
+                    processesHtml += '</tbody></table>';
+                    document.getElementById('processesTable').innerHTML = processesHtml;
+                })
+                .catch(error => {
+                    console.error('Error fetching processes:', error);
+                    document.getElementById('processesTable').innerHTML = '<div class="loading">Error loading processes</div>';
+                });
+        }
+
+        // Progressive loading: disk → folders → processes
+        function updateDashboard() {
+            loadDiskInfo();           // Load immediately (fast)
+            setTimeout(loadFolders, 500);   // Load after 500ms
+            setTimeout(loadProcesses, 1000); // Load after 1s
+        }
+
+        // Initial update with progressive loading
+        updateDashboard();
+
+        // Auto-refresh every 60 seconds (1 minute)
+        setInterval(updateDashboard, 60000);
+    </script>
+</body>
+</html>

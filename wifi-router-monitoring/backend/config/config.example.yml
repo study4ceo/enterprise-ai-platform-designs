@@ -1,0 +1,129 @@
+# WiFi Router Monitor Configuration
+# Copy this file to config.yml and customize for your environment
+
+app:
+  environment: development
+  debug: true
+  log_level: INFO
+
+database:
+  url: postgresql+asyncpg://wifi_user:changeme@localhost:5432/wifi_monitor
+  pool_size: 20
+  max_overflow: 10
+  echo: false
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  allowed_origins:
+    - http://localhost:3000
+    - http://localhost:5173
+
+security:
+  secret_key: your-secret-key-here-change-in-production
+  session_timeout_minutes: 30
+  bcrypt_work_factor: 12
+  https_enabled: false
+  ssl_cert_file: null
+  ssl_key_file: null
+
+scanning:
+  default_scan_interval_seconds: 30
+  min_scan_interval_seconds: 5
+  max_scan_interval_seconds: 300
+
+notifications:
+  browser_enabled: true
+  email_enabled: false
+  webhook_enabled: false
+  notify_on_known_device: false
+
+email:
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  smtp_username: your-email@example.com
+  smtp_password: your-app-password
+  smtp_from: WiFi Monitor <noreply@example.com>
+  smtp_use_tls: true
+  recipients:
+    - admin@example.com
+
+webhook:
+  urls:
+    - https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+  timeout_seconds: 10
+  retry_attempts: 1
+
+data_retention:
+  connection_history_days: 90
+  cleanup_schedule_cron: "0 2 * * *"  # Daily at 2 AM
+
+performance:
+  connection_event_queue_size: 1000
+  websocket_ping_interval_seconds: 30
+  max_concurrent_websocket_connections: 50
+
+logging:
+  format: json
+  file: logs/app.log
+  max_bytes: 104857600  # 100 MB
+  backup_count: 30
+  log_levels:
+    app: INFO
+    sqlalchemy: WARNING
+    uvicorn: INFO
+
+# Router configurations (can also be managed via API)
+routers:
+  - id: router-1
+    name: Main Router
+    protocol: snmp  # snmp, ssh, http_api, arp
+    host: 192.168.1.1
+    port: 161
+    credentials:
+      # SNMP
+      community: public
+      version: "2c"
+      # SSH
+      # username: admin
+      # password: password
+      # device_type: cisco_ios
+      # HTTP API
+      # api_token: your-api-token
+      # ARP
+      # network_cidr: 192.168.1.0/24
+    scan_interval_seconds: 30
+    enabled: true
+
+  # Example SSH router
+  # - id: router-2
+  #   name: Office Router
+  #   protocol: ssh
+  #   host: 192.168.2.1
+  #   port: 22
+  #   credentials:
+  #     username: admin
+  #     password: secure-password
+  #     device_type: ubiquiti_edge
+  #   scan_interval_seconds: 60
+  #   enabled: true
+
+  # Example HTTP API router (UniFi)
+  # - id: router-3
+  #   name: UniFi Controller
+  #   protocol: http_api
+  #   host: https://unifi.local:8443
+  #   credentials:
+  #     username: admin
+  #     password: admin-password
+  #   scan_interval_seconds: 30
+  #   enabled: true
+
+  # Example ARP scanner
+  # - id: router-4
+  #   name: Local Network Scanner
+  #   protocol: arp
+  #   credentials:
+  #     network_cidr: 192.168.1.0/24
+  #   scan_interval_seconds: 60
+  #   enabled: true

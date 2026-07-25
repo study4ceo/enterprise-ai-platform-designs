@@ -1,0 +1,95 @@
+[tool.poetry]
+name = "wifi-router-monitor-backend"
+version = "0.1.0"
+description = "WiFi Router Connection Monitor - Backend API"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.0"
+uvicorn = {extras = ["standard"], version = "^0.32.0"}
+sqlalchemy = "^2.0.36"
+asyncpg = "^0.30.0"
+alembic = "^1.14.0"
+pydantic = "^2.10.0"
+pydantic-settings = "^2.6.0"
+pysnmp = "^7.1.5"
+netmiko = "^4.5.0"
+httpx = "^0.28.1"
+scapy = "^2.6.1"
+manuf = "^1.1.5"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+apscheduler = "^3.10.4"
+aiosmtplib = "^3.0.2"
+pyyaml = "^6.0.2"
+structlog = "^24.4.0"
+python-multipart = "^0.0.17"
+websockets = "^14.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^6.0.0"
+pytest-mock = "^3.14.0"
+black = "^24.10.0"
+ruff = "^0.8.4"
+mypy = "^1.13.0"
+httpx = "^0.28.1"
+faker = "^33.1.0"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | \.pytest_cache
+  | __pycache__
+  | alembic
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "--strict-markers",
+    "--cov=app",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
