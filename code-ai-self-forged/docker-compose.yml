@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  code-ai-self-forged:
+    build: .
+    container_name: code-ai-self-forged
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MODEL_NAME=${MODEL_NAME:-claude-sonnet-4-20250514}
+      - MAX_TOKENS=${MAX_TOKENS:-8000}
+      - TEMPERATURE=${TEMPERATURE:-0.7}
+      - EXECUTION_TIMEOUT=${EXECUTION_TIMEOUT:-30}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./workspace:/app/workspace
+      - ./logs:/app/logs
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # Optional: Run test suites
+  test-runner:
+    build: .
+    container_name: code-ai-test-runner
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MODEL_NAME=${MODEL_NAME:-claude-sonnet-4-20250514}
+    command: python run_all_tests.py
+    profiles:
+      - testing

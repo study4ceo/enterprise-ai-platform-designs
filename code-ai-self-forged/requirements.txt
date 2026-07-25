@@ -1,0 +1,21 @@
+# LLM Integration
+anthropic>=0.40.0
+
+# Agent Framework
+langchain>=0.3.0
+langchain-anthropic>=0.3.0
+
+# Async Support
+aiohttp>=3.11.0
+asyncio>=3.4.3
+
+# Code Execution
+docker>=7.1.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+rich>=13.9.0
+
+# Logging
+structlog>=24.4.0
