@@ -174,7 +174,7 @@ spec:
               name: anthropic-secret
               key: api-key
         - name: MODEL_NAME
-          value: "claude-sonnet-4-20250514"
+          value: "claude-sonnet-4.6"
         - name: MAX_TOKENS
           value: "8000"
         volumeMounts:
@@ -214,7 +214,7 @@ kubectl apply -f deployment.yaml
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `ANTHROPIC_API_KEY` | Anthropic API key | - | Yes |
-| `MODEL_NAME` | Claude model to use | `claude-sonnet-4-20250514` | No |
+| `MODEL_NAME` | Claude model to use | `claude-sonnet-4.6` | No |
 | `MAX_TOKENS` | Max response tokens | `8000` | No |
 | `TEMPERATURE` | LLM temperature | `0.7` | No |
 | `EXECUTION_TIMEOUT` | Code execution timeout (seconds) | `30` | No |

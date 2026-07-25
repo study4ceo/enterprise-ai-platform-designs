@@ -6,7 +6,7 @@ services:
     container_name: code-ai-self-forged
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - MODEL_NAME=${MODEL_NAME:-claude-sonnet-4-20250514}
+      - MODEL_NAME=${MODEL_NAME:-claude-sonnet-4.6}
       - MAX_TOKENS=${MAX_TOKENS:-8000}
       - TEMPERATURE=${TEMPERATURE:-0.7}
       - EXECUTION_TIMEOUT=${EXECUTION_TIMEOUT:-30}
@@ -24,7 +24,7 @@ services:
     container_name: code-ai-test-runner
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - MODEL_NAME=${MODEL_NAME:-claude-sonnet-4-20250514}
+      - MODEL_NAME=${MODEL_NAME:-claude-sonnet-4.6}
     command: python run_all_tests.py
     profiles:
       - testing

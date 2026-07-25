@@ -87,7 +87,7 @@ Edit `.env` to customize:
 
 ```env
 ANTHROPIC_API_KEY=your_key_here
-MODEL_NAME=claude-sonnet-4-20250514
+MODEL_NAME=claude-sonnet-4.6
 MAX_TOKENS=8000
 TEMPERATURE=0.7
 EXECUTION_TIMEOUT=30

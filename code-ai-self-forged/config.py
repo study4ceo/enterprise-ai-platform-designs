@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     # Anthropic API
     anthropic_api_key: str = Field(..., env="ANTHROPIC_API_KEY")
-    model_name: str = Field(default="claude-sonnet-4-20250514", env="MODEL_NAME")
+    model_name: str = Field(default="claude-sonnet-4.6", env="MODEL_NAME")
     max_tokens: int = Field(default=8000, env="MAX_TOKENS")
     temperature: float = Field(default=0.7, env="TEMPERATURE")
 
