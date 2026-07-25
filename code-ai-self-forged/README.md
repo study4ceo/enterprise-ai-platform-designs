@@ -12,27 +12,38 @@ This system enables AI to reason about problems, generate solutions, write code,
 - **Self-Correction**: Analyze errors and iterate to find solutions
 - **Interactive Mode**: Chat with the agent and watch it work
 - **Memory**: Maintains conversation context for better decisions
+- **🆕 Offline Mode**: Run completely local without API keys (Ollama support)
+- **🆕 Multi-Provider**: Switch between cloud (Anthropic) and local (Ollama) models
+- **🆕 Heavyweight Option**: Use Claude Opus 4.7 for maximum coding power
 
 ## Quick Start
 
-### Installation
+### Choose Your Mode
 
+**☁️ Cloud Mode** - Best quality, requires API key  
+**💻 Offline Mode** - Free, no API key, runs local  
+**⚡ Heavyweight** - Maximum power, 5x cost  
+
+---
+
+### Cloud Mode (Recommended for Production)
+
+**Local Installation:**
 ```bash
-# Clone or navigate to project
-cd code-ai-self-forged
-
-# Install dependencies (Python 3.14+)
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# Set up environment
+# 2. Set up environment
 cp .env.example .env
 # Edit .env and add your ANTHROPIC_API_KEY
+
+# 3. Run
+python main.py
 ```
 
-### Docker Deployment (Recommended)
-
+**Docker:**
 ```bash
-# 1. Set up environment
+# 1. Set up API key
 echo "ANTHROPIC_API_KEY=your_key_here" > .env
 
 # 2. Build and run
@@ -40,12 +51,63 @@ docker-compose up -d
 
 # 3. Attach to interactive session
 docker attach code-ai-self-forged
-
-# Or run one-shot
-docker-compose run --rm code-ai-self-forged python main.py "your problem"
 ```
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment options (local, Docker, AWS, GCP, Azure, Kubernetes).
+---
+
+### Offline Mode - No API Key! 🎉
+
+**Local Installation:**
+```bash
+# 1. Install Ollama
+# Windows: winget install Ollama.Ollama
+# Or download: https://ollama.ai/download
+
+# 2. Pull a model (one-time, ~5GB)
+ollama pull llama3.1:8b
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Configure for offline
+cp .env.offline.example .env
+
+# 5. Run (no API key needed!)
+python main.py
+```
+
+**Docker Offline:**
+```bash
+# 1. Start Ollama + Code-AI-Self-Forged
+docker-compose -f docker-compose.offline.yml up -d
+
+# 2. Pull model into Ollama (one-time)
+docker exec -it ollama ollama pull llama3.1:8b
+
+# 3. Use it (no API key!)
+docker attach code-ai-self-forged-offline
+```
+
+---
+
+### Heavyweight Mode (Maximum Coding Power)
+
+For complex, critical problems requiring the highest quality:
+
+```bash
+# Use Claude Opus 4.7 (5x more expensive, significantly better)
+cp .env.opus.example .env
+# Add your ANTHROPIC_API_KEY
+python main.py
+```
+
+Or set in existing `.env`:
+```env
+LLM_PROVIDER=anthropic
+MODEL_NAME=claude-opus-4.7
+```
+
+See [OFFLINE-MODE.md](OFFLINE-MODE.md) and [MODEL-INFO.md](MODEL-INFO.md) for complete guides.
 
 ### Usage
 
@@ -62,6 +124,28 @@ Commands:
 **Command Line Mode:**
 ```bash
 python main.py "Calculate fibonacci numbers up to 100"
+```
+
+### Model Options
+
+Choose your model based on needs:
+
+| Mode | Model | Cost | Performance | API Key? |
+|------|-------|------|-------------|----------|
+| **Balanced** | Claude Sonnet 4.6 | $3-15/M tokens | Excellent | Required |
+| **Max Power** | Claude Opus 4.7 | $15-75/M tokens | Best | Required |
+| **Offline** | Llama 3.1 8B | Free | Good | No |
+| **Offline Pro** | CodeLlama 34B | Free | Very Good | No |
+
+**Switch models:**
+```env
+# For max coding power
+LLM_PROVIDER=anthropic
+MODEL_NAME=claude-opus-4.7
+
+# For offline mode
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=codellama:34b
 ```
 
 ## How It Works
@@ -83,9 +167,9 @@ The agent autonomously solves problems in up to 3 iterations, learning from each
 
 ## Configuration
 
-Edit `.env` to customize:
-
+### Cloud Mode (Anthropic Claude):
 ```env
+LLM_PROVIDER=anthropic
 ANTHROPIC_API_KEY=your_key_here
 MODEL_NAME=claude-sonnet-4.6
 MAX_TOKENS=8000
@@ -94,19 +178,42 @@ EXECUTION_TIMEOUT=30
 LOG_LEVEL=INFO
 ```
 
+### Offline Mode (No API Key):
+```env
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=llama3.1:8b
+OLLAMA_BASE_URL=http://localhost:11434
+MAX_TOKENS=8000
+TEMPERATURE=0.7
+EXECUTION_TIMEOUT=30
+LOG_LEVEL=INFO
+```
+
+See [MODEL-INFO.md](MODEL-INFO.md) for model recommendations.
+
 ## Project Structure
 
 ```
 code-ai-self-forged/
-├── main.py              # Entry point, CLI interface
-├── reasoning_agent.py   # AI reasoning and orchestration
-├── code_executor.py     # Safe code execution engine
-├── code_validator.py    # AST-based safety checks
-├── config.py            # Configuration management
-├── logger.py            # Structured logging
-├── requirements.txt     # Dependencies
-├── .env.example         # Environment template
-└── workspace/           # Temporary execution space
+├── main.py                      # Entry point, CLI interface
+├── reasoning_agent.py           # AI reasoning and orchestration
+├── code_executor.py             # Safe code execution engine
+├── code_validator.py            # AST-based safety checks
+├── config.py                    # Configuration management
+├── logger.py                    # Structured logging
+├── requirements.txt             # Dependencies
+├── .env.example                 # Cloud mode config template
+├── .env.offline.example         # Offline mode config template
+├── Dockerfile                   # Container image
+├── docker-compose.yml           # Cloud deployment
+├── docker-compose.offline.yml   # Offline deployment
+├── test_*.py                    # Test suites
+├── run_all_tests.py            # Master test runner
+├── DEPLOYMENT.md               # Deployment guide
+├── OFFLINE-MODE.md             # Offline setup guide
+├── MODEL-INFO.md               # Model recommendations
+├── REAL-WORLD-PROBLEMS.md      # Problem examples
+└── workspace/                  # Temporary execution space
 ```
 
 ## Example Session
@@ -185,12 +292,37 @@ Each test demonstrates the agent's ability to:
 
 See [REAL-WORLD-PROBLEMS.md](REAL-WORLD-PROBLEMS.md) for detailed problem descriptions (25+ scenarios).
 
+## Documentation
+
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Complete deployment guide (local, Docker, AWS, GCP, Azure, Kubernetes)
+- **[OFFLINE-MODE.md](OFFLINE-MODE.md)** - Run without API keys using local LLMs
+- **[MODEL-INFO.md](MODEL-INFO.md)** - Model comparison, pricing, selection guide
+- **[REAL-WORLD-PROBLEMS.md](REAL-WORLD-PROBLEMS.md)** - 25+ production-ready test problems
+
+## Deployment Modes Comparison
+
+| Feature | Cloud Mode | Offline Mode |
+|---------|------------|--------------|
+| **API Key Required** | ✅ Yes | ❌ No |
+| **Cost** | $3-15 per 1M tokens | Free (after hardware) |
+| **Quality** | Excellent (Claude 4.6) | Good (Llama 3.1) |
+| **Speed** | Very Fast | Medium (GPU) / Slow (CPU) |
+| **Privacy** | Data sent to cloud | Data stays local |
+| **Internet Required** | Yes | No (after model download) |
+| **Hardware Needed** | None | 8GB+ RAM |
+| **Best For** | Production, quality | Development, privacy |
+
+Choose based on your needs! See [OFFLINE-MODE.md](OFFLINE-MODE.md) for offline setup.
+
 ## Roadmap
 
 - [x] MVP: Basic reasoning + Python execution
 - [x] Production test suites (25+ real-world problems across 6 categories)
 - [x] Docker deployment with docker-compose
 - [x] Multi-cloud deployment guides (AWS, GCP, Azure)
+- [x] Offline mode with Ollama (no API key needed)
+- [x] Multi-provider support (Anthropic + Ollama)
+- [x] Heavyweight option (Claude Opus 4.7)
 - [ ] Docker-based code execution sandbox (enhanced security)
 - [ ] Multi-language support (JavaScript, Go)
 - [ ] File system operations

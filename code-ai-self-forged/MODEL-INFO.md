@@ -42,15 +42,53 @@ Claude Sonnet 4.6 is chosen for Code-AI-Self-Forged because it delivers:
 
 ### Alternative Models
 
-If you need different capabilities, you can configure these models via `MODEL_NAME` environment variable:
+Configure via `MODEL_NAME` or `OLLAMA_MODEL` environment variable:
 
-**For Maximum Intelligence:**
-- `claude-opus-4.7` - Highest reasoning capability, better for extremely complex problems
-- More expensive but more capable
+#### Cloud (Anthropic) Models:
 
-**For Speed/Cost:**
-- `claude-sonnet-4.6` (Current) - Best balance
-- `claude-haiku-4` - Faster and cheaper for simpler tasks (when available)
+**Balanced (Recommended):**
+- `claude-sonnet-4.6` - Best balance of performance and cost
+- Input: $3/M tokens, Output: $15/M tokens
+- ⭐ **Default choice**
+
+**Heavyweight (Maximum Power):**
+- `claude-opus-4.7` - Highest reasoning capability
+- Input: $15/M tokens, Output: $75/M tokens  
+- 5x more expensive, significantly better quality
+- Best for: Complex multi-step problems, critical production code
+- Use when: Quality matters more than cost
+
+**Lightweight (Coming Soon):**
+- `claude-haiku-4` - Fastest and cheapest
+- Best for: Simple, repetitive tasks
+
+#### Offline (Ollama) Models:
+
+**Free, No API Key:**
+- `llama3.1:8b` - Fast, 8GB RAM, good general purpose
+- `codellama:34b` - Best for coding, 32GB RAM
+- `qwen2.5-coder:32b` - Excellent coding, 32GB RAM
+- `deepseek-coder:33b` - Strong coding, 32GB RAM
+
+### Configuration Examples
+
+**Balanced (Default):**
+```env
+LLM_PROVIDER=anthropic
+MODEL_NAME=claude-sonnet-4.6
+```
+
+**Heavyweight (Max Power):**
+```env
+LLM_PROVIDER=anthropic
+MODEL_NAME=claude-opus-4.7
+```
+
+**Offline (No API Key):**
+```env
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=llama3.1:8b
+```
 
 ### Configuring Model
 

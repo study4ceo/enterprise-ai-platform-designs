@@ -15,9 +15,20 @@ load_dotenv()
 class Settings(BaseSettings):
     """Application settings."""
 
-    # Anthropic API
-    anthropic_api_key: str = Field(..., env="ANTHROPIC_API_KEY")
+    # LLM Provider (anthropic or ollama)
+    llm_provider: str = Field(default="anthropic", env="LLM_PROVIDER")
+    
+    # Anthropic API (for cloud mode)
+    anthropic_api_key: Optional[str] = Field(default=None, env="ANTHROPIC_API_KEY")
     model_name: str = Field(default="claude-sonnet-4.6", env="MODEL_NAME")
+    # Options: claude-sonnet-4.6 (balanced), claude-opus-4.7 (max power)
+    
+    # Ollama Configuration (for offline mode)
+    ollama_model: str = Field(default="llama3.1:8b", env="OLLAMA_MODEL")
+    # Options: llama3.1:8b, codellama:34b, qwen2.5-coder:32b
+    ollama_base_url: str = Field(default="http://localhost:11434", env="OLLAMA_BASE_URL")
+    
+    # Common settings
     max_tokens: int = Field(default=8000, env="MAX_TOKENS")
     temperature: float = Field(default=0.7, env="TEMPERATURE")
 
@@ -43,6 +54,10 @@ class Settings(BaseSettings):
         # Create directories
         self.workspace_dir.mkdir(exist_ok=True)
         self.logs_dir.mkdir(exist_ok=True)
+        
+        # Validate configuration
+        if self.llm_provider == "anthropic" and not self.anthropic_api_key:
+            raise ValueError("ANTHROPIC_API_KEY required when LLM_PROVIDER=anthropic")
 
 
 # Global settings instance

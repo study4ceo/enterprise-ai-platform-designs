@@ -1,7 +1,6 @@
 """Reasoning agent using LLM."""
 
 from typing import List, Dict, Optional
-from anthropic import Anthropic
 
 from config import settings
 from logger import get_logger
@@ -50,9 +49,26 @@ You have access to standard Python libraries. File operations are restricted in 
         Args:
             executor: Code executor instance
         """
-        self.client = Anthropic(api_key=settings.anthropic_api_key)
+        # Initialize LLM client based on provider
+        if settings.llm_provider == "anthropic":
+            from anthropic import Anthropic
+            self.client = Anthropic(api_key=settings.anthropic_api_key)
+            self.model_name = settings.model_name
+        elif settings.llm_provider == "ollama":
+            # Ollama uses OpenAI-compatible API
+            from openai import OpenAI
+            self.client = OpenAI(
+                base_url=settings.ollama_base_url,
+                api_key="not-needed"  # Ollama doesn't need API key
+            )
+            self.model_name = settings.ollama_model
+        else:
+            raise ValueError(f"Unsupported LLM provider: {settings.llm_provider}")
+        
         self.executor = executor or CodeExecutor()
         self.conversation: List[Message] = []
+        
+        logger.info("ReasoningAgent initialized", provider=settings.llm_provider, model=self.model_name)
 
     def think(self, user_input: str) -> str:
         """Process user input and generate response.
@@ -155,15 +171,28 @@ You have access to standard Python libraries. File operations are restricted in 
             LLM response text
         """
         try:
-            response = self.client.messages.create(
-                model=settings.model_name,
-                max_tokens=settings.max_tokens,
-                temperature=settings.temperature,
-                system=self.SYSTEM_PROMPT,
-                messages=[msg.to_dict() for msg in self.conversation],
-            )
-
-            return response.content[0].text
+            if settings.llm_provider == "anthropic":
+                response = self.client.messages.create(
+                    model=self.model_name,
+                    max_tokens=settings.max_tokens,
+                    temperature=settings.temperature,
+                    system=self.SYSTEM_PROMPT,
+                    messages=[msg.to_dict() for msg in self.conversation],
+                )
+                return response.content[0].text
+            
+            elif settings.llm_provider == "ollama":
+                # Ollama uses OpenAI-compatible chat completion
+                messages = [{"role": "system", "content": self.SYSTEM_PROMPT}]
+                messages.extend([msg.to_dict() for msg in self.conversation])
+                
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=messages,
+                    temperature=settings.temperature,
+                    max_tokens=settings.max_tokens,
+                )
+                return response.choices[0].message.content
 
         except Exception as e:
             logger.error("LLM API error", error=str(e))

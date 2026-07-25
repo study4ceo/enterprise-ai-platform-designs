@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Ollama - Local LLM server (no API key needed!)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Code-AI-Self-Forged with Ollama (offline mode)
+  code-ai-self-forged-offline:
+    build: .
+    container_name: code-ai-self-forged-offline
+    environment:
+      - LLM_PROVIDER=ollama
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.1:8b}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - MAX_TOKENS=${MAX_TOKENS:-8000}
+      - TEMPERATURE=${TEMPERATURE:-0.7}
+      - EXECUTION_TIMEOUT=${EXECUTION_TIMEOUT:-30}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./workspace:/app/workspace
+      - ./logs:/app/logs
+    depends_on:
+      ollama:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # Test runner for offline mode
+  test-runner-offline:
+    build: .
+    container_name: code-ai-test-runner-offline
+    environment:
+      - LLM_PROVIDER=ollama
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.1:8b}
+      - OLLAMA_BASE_URL=http://ollama:11434
+    command: python run_all_tests.py
+    depends_on:
+      ollama:
+        condition: service_healthy
+    profiles:
+      - testing
+
+volumes:
+  ollama-data:
+    driver: local
