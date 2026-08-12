@@ -1,0 +1,155 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for metadata
+  postgres:
+    image: postgres:16-alpine
+    container_name: slm-postgres
+    environment:
+      POSTGRES_DB: slm_platform
+      POSTGRES_USER: slm_user
+      POSTGRES_PASSWORD: slm_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slm_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: slm-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO for model and dataset storage
+  minio:
+    image: minio/minio:latest
+    container_name: slm-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: slm-backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://slm_user:slm_password@postgres:5432/slm_platform
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - MODELS_DIR=/models
+      - DATASETS_DIR=/datasets
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./models:/models
+      - ./datasets:/datasets
+      - model_cache:/root/.cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Training Worker
+  training-worker:
+    build:
+      context: ./training-worker
+      dockerfile: Dockerfile
+    container_name: slm-training-worker
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://slm_user:slm_password@postgres:5432/slm_platform
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin123
+      - MODELS_DIR=/models
+      - DATASETS_DIR=/datasets
+      - CHECKPOINTS_DIR=/checkpoints
+    volumes:
+      - ./training-worker:/app
+      - ./models:/models
+      - ./datasets:/datasets
+      - ./checkpoints:/checkpoints
+      - model_cache:/root/.cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python worker.py
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: slm-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  model_cache:
+
+networks:
+  default:
+    name: slm-network

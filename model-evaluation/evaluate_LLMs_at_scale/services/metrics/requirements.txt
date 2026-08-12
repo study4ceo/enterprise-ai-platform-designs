@@ -1,0 +1,16 @@
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+redis==5.0.1
+aio-pika==9.3.1
+pydantic==2.5.3
+pydantic-settings==2.1.0
+nltk==3.8.1
+rouge-score==0.1.2
+bert-score==0.3.13
+transformers==4.37.2
+torch==2.2.0
+detoxify==0.5.2
+google-generativeai==0.3.2
+spacy==3.7.2
+groq==0.4.2
+scikit-learn==1.4.0

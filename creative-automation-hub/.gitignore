@@ -1,0 +1,45 @@
+# Environment
+.env
+.env.local
+.env.production
+*.env
+
+# Go
+*.exe
+*.dll
+*.so
+*.dylib
+bin/
+vendor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv
+
+# Node/Next.js
+node_modules/
+.next/
+out/
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+*.out
+
+# Uploads
+uploads/
+temp/

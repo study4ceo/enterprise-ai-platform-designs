@@ -1,0 +1,43 @@
+# Training Worker Dependencies
+
+# Core ML frameworks
+torch>=2.1.0
+transformers>=4.36.0
+accelerate>=0.25.0
+peft>=0.7.0
+bitsandbytes>=0.41.0
+trl>=0.7.4
+
+# Data processing
+datasets>=2.16.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Training utilities
+tensorboard>=2.15.0
+wandb>=0.16.0
+tqdm>=4.66.0
+
+# Database
+asyncpg>=0.29.0
+sqlalchemy[asyncio]>=2.0.0
+alembic>=1.13.0
+
+# Task queue
+redis>=5.0.0
+celery>=5.3.0
+
+# Monitoring
+psutil>=5.9.0
+nvidia-ml-py3>=7.352.0
+
+# Configuration
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Logging
+loguru>=0.7.0
+
+# Storage
+boto3>=1.34.0  # For MinIO (S3-compatible)

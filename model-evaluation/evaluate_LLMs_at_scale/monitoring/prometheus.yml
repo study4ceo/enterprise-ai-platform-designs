@@ -1,0 +1,94 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'llm-evaluation-platform'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  # - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # API Gateway metrics
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Orchestrator metrics
+  - job_name: 'orchestrator'
+    static_configs:
+      - targets: ['orchestrator:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Metrics Service
+  - job_name: 'metrics-service'
+    static_configs:
+      - targets: ['metrics:8002']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Analytics Service
+  - job_name: 'analytics'
+    static_configs:
+      - targets: ['analytics:8003']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Worker Services
+  - job_name: 'workers'
+    static_configs:
+      - targets: 
+        - 'worker-gemini:9100'
+        - 'worker-gpt:9100'
+        - 'worker-claude:9100'
+        - 'worker-groq:9100'
+    scrape_interval: 10s
+
+  # PostgreSQL metrics (via postgres_exporter)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+    scrape_interval: 30s
+
+  # Redis metrics (via redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s
+
+  # RabbitMQ metrics
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    scrape_interval: 30s
+
+  # MinIO metrics
+  - job_name: 'minio'
+    static_configs:
+      - targets: ['minio:9000']
+    metrics_path: '/minio/v2/metrics/cluster'
+    scrape_interval: 30s
+
+  # Node exporter for system metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 30s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s

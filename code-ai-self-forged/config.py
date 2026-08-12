@@ -15,13 +15,19 @@ load_dotenv()
 class Settings(BaseSettings):
     """Application settings."""
 
-    # LLM Provider (anthropic or ollama)
+    # LLM Provider (anthropic, ollama, or groq)
     llm_provider: str = Field(default="anthropic", env="LLM_PROVIDER")
     
     # Anthropic API (for cloud mode)
     anthropic_api_key: Optional[str] = Field(default=None, env="ANTHROPIC_API_KEY")
     model_name: str = Field(default="claude-sonnet-4.6", env="MODEL_NAME")
     # Options: claude-sonnet-4.6 (balanced), claude-opus-4.7 (max power)
+    
+    # Groq API (fast cloud inference)
+    groq_api_key: Optional[str] = Field(default=None, env="GROQ_API_KEY")
+    groq_model: str = Field(default="llama-3.3-70b-versatile", env="GROQ_MODEL")
+    # Options: llama-3.3-70b-versatile, mixtral-8x7b-32768, gemma2-9b-it
+    groq_base_url: str = Field(default="https://api.groq.com/openai/v1", env="GROQ_BASE_URL")
     
     # Ollama Configuration (for offline mode)
     ollama_model: str = Field(default="llama3.1:8b", env="OLLAMA_MODEL")

@@ -54,6 +54,14 @@ You have access to standard Python libraries. File operations are restricted in 
             from anthropic import Anthropic
             self.client = Anthropic(api_key=settings.anthropic_api_key)
             self.model_name = settings.model_name
+        elif settings.llm_provider == "groq":
+            # Groq uses OpenAI-compatible API
+            from openai import OpenAI
+            self.client = OpenAI(
+                base_url=settings.groq_base_url,
+                api_key=settings.groq_api_key
+            )
+            self.model_name = settings.groq_model
         elif settings.llm_provider == "ollama":
             # Ollama uses OpenAI-compatible API
             from openai import OpenAI
