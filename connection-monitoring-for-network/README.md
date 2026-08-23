@@ -2,9 +2,29 @@
 
 ## Quick Start
 
-### Step 1: Run Basic Network Test
+### 🎯 Recommended: Use the Dashboard (Visual Interface)
 
 Open PowerShell and run:
+
+```powershell
+cd D:\code_ai\code\project-designs\connection-monitoring-for-network\dashboard
+.\server.ps1
+```
+
+This launches a **visual dashboard** in your browser with:
+- Real-time latency graphs
+- System resource monitoring
+- Live alerts
+- Connection history
+- Data export
+
+**See dashboard folder for details!**
+
+---
+
+### Alternative: Command-Line Tools
+
+#### Step 1: Run Basic Network Test
 
 ```powershell
 cd D:\code_ai\code\project-designs\connection-monitoring-for-network
@@ -40,6 +60,11 @@ connection-monitoring-for-network/
 ├── monitor-network.ps1            ← Continuous network monitoring
 ├── analyze-connection.ps1         ← Connection quality analyzer
 ├── monitor-resources.ps1          ← System resource monitor
+├── dashboard/                     ← 🌟 Visual Dashboard (NEW!)
+│   ├── README.md                  ← Dashboard guide
+│   ├── index.html                 ← Dashboard UI
+│   ├── app.js                     ← Dashboard logic
+│   └── server.ps1                 ← Backend server
 ├── logs/                          ← Monitoring logs (created automatically)
 └── captures/                      ← Wireshark captures (create manually)
 ```
