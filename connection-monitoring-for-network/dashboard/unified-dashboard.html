@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Monitoring - Production Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .threat-badge {
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .threat-low { background: #10b981; }
+        .threat-medium { background: #f59e0b; }
+        .threat-high { background: #ef4444; }
+        .threat-critical { background: #dc2626; animation: blink 1s infinite; }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        .tabs {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button.danger {
+            background: #ef4444;
+        }
+
+        button.danger:hover {
+            background: #dc2626;
+        }
+
+        button.success {
+            background: #10b981;
+        }
+
+        button.success:hover {
+            background: #059669;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .card.alert {
+            border: 2px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .metric-value.good { color: #10b981; }
+        .metric-value.warning { color: #f59e0b; }
+        .metric-value.danger { color: #ef4444; }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .data-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .data-item.success {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .data-item.danger {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .data-item.warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 5px;
+        }
+
+        .alert-banner {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .alert-banner.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-critical { background: #dc2626; }
+        .badge-high { background: #ef4444; }
+        .badge-medium { background: #f59e0b; }
+        .badge-low { background: #3b82f6; }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Network Monitoring Dashboard</h1>
+            <div class="status">
+                <div>
+                    <span style="font-size: 12px; opacity: 0.8;">Connection:</span>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                        <div class="status-dot online" id="connectionStatus"></div>
+                        <span id="connectionText">Online</span>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; opacity: 0.8;">Threat Level:</span>
+                    <div style="margin-top: 5px;">
+                        <span class="threat-badge threat-low" id="threatLevel">LOW</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('performance')">📊 Performance</div>
+            <div class="tab" onclick="switchTab('security')">🛡️ Security</div>
+            <div class="tab" onclick="switchTab('analysis')">📈 Analysis</div>
+        </div>
+
+        <div class="controls">
+            <button onclick="startMonitoring()" class="success">▶ Start Monitoring</button>
+            <button onclick="stopMonitoring()" class="danger">⏸ Stop</button>
+            <button onclick="exportData()">💾 Export Data</button>
+            <button onclick="blockThreats()" class="danger">🚫 Block Threats</button>
+            <button onclick="clearData()">🗑 Clear</button>
+        </div>
+
+        <div class="alert-banner" id="alertBanner"></div>
+
+        <!-- PERFORMANCE TAB -->
+        <div id="performance-tab" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <h2>📊 Connection Quality</h2>
+                    <div class="metric">
+                        <span class="metric-label">Current Latency</span>
+                        <span class="metric-value good" id="perf-latency">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Average Latency</span>
+                        <span class="metric-value" id="perf-avg-latency">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Packet Loss</span>
+                        <span class="metric-value" id="perf-packet-loss">0%</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>💻 System Resources</h2>
+                    <div class="metric">
+                        <span class="metric-label">CPU Usage</span>
+                        <span class="metric-value" id="perf-cpu">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory Usage</span>
+                        <span class="metric-value" id="perf-memory">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Network I/O</span>
+                        <span class="metric-value" id="perf-network">--</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📈 Statistics</h2>
+                    <div class="metric">
+                        <span class="metric-label">Total Tests</span>
+                        <span class="metric-value" id="perf-total">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Successful</span>
+                        <span class="metric-value good" id="perf-success">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Failed</span>
+                        <span class="metric-value danger" id="perf-failed">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>📉 Latency & Packet Loss Over Time</h2>
+                <canvas id="perfChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h2>🔄 Recent Ping Results</h2>
+                <div class="data-list" id="perfLog"></div>
+            </div>
+        </div>
+
+        <!-- SECURITY TAB -->
+        <div id="security-tab" class="tab-content">
+            <div class="grid">
+                <div class="card alert">
+                    <h2>🚨 Active Threats</h2>
+                    <div class="metric">
+                        <span class="metric-label">Suspicious Connections</span>
+                        <span class="metric-value danger" id="sec-suspicious">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Port Scans</span>
+                        <span class="metric-value warning" id="sec-portscans">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Blocked IPs</span>
+                        <span class="metric-value" id="sec-blocked">0</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🌐 Network Activity</h2>
+                    <div class="metric">
+                        <span class="metric-label">Active Connections</span>
+                        <span class="metric-value" id="sec-connections">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Unique IPs</span>
+                        <span class="metric-value" id="sec-unique-ips">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Data Transfer</span>
+                        <span class="metric-value" id="sec-data">0 MB</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🔒 Firewall Status</h2>
+                    <div class="metric">
+                        <span class="metric-label">Status</span>
+                        <span class="metric-value good" id="sec-firewall">CHECKING...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Block Rules</span>
+                        <span class="metric-value" id="sec-rules">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Last Scan</span>
+                        <span class="metric-value" style="font-size: 14px;" id="sec-lastscan">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>📊 Connection Activity & Threats</h2>
+                <canvas id="secChart"></canvas>
+            </div>
+
+            <div class="card alert">
+                <h2>🔴 Suspicious Activity Log</h2>
+                <div class="data-list" id="secLog"></div>
+            </div>
+
+            <div class="card">
+                <h2>🔗 Active Network Connections</h2>
+                <div class="data-list" id="connectionsList"></div>
+            </div>
+        </div>
+
+        <!-- ANALYSIS TAB -->
+        <div id="analysis-tab" class="tab-content">
+            <div class="chart-container">
+                <h2>📊 Combined Performance & Security Metrics</h2>
+                <canvas id="analysisChart"></canvas>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h2>📈 Performance Summary</h2>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value good" id="analysis-uptime">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg Latency</span>
+                        <span class="metric-value" id="analysis-latency">--</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Drops</span>
+                        <span class="metric-value" id="analysis-drops">--</span>
+                    </div>
+                </div>
+
+                <div class="card alert">
+                    <h2>🛡️ Security Summary</h2>
+                    <div class="metric">
+                        <span class="metric-label">Total Threats</span>
+                        <span class="metric-value danger" id="analysis-threats">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Threats Blocked</span>
+                        <span class="metric-value good" id="analysis-blocked">0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Risk Score</span>
+                        <span class="metric-value" id="analysis-risk">LOW</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="unified-app.js"></script>
+</body>
+</html>

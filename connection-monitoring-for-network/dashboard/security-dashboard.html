@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Security Monitoring Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid #ef4444;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: #ef4444;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .threat-level {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .threat-badge {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .threat-low {
+            background: #10b981;
+            color: white;
+        }
+
+        .threat-medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .threat-high {
+            background: #ef4444;
+            color: white;
+        }
+
+        .threat-critical {
+            background: #dc2626;
+            color: white;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .card.alert {
+            border: 2px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .card.warning {
+            border: 2px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .card h2 {
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .metric-value.safe {
+            color: #10b981;
+        }
+
+        .metric-value.warning {
+            color: #f59e0b;
+        }
+
+        .metric-value.danger {
+            color: #ef4444;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container h2 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .suspicious-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .suspicious-item {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+        }
+
+        .suspicious-item.medium {
+            background: rgba(245, 158, 11, 0.2);
+            border-left-color: #f59e0b;
+        }
+
+        .suspicious-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .suspicious-item-details {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .connection-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #3b82f6;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .connection-item.suspicious {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        button.safe {
+            background: #10b981;
+        }
+
+        button.safe:hover {
+            background: #059669;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .alert-banner {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .alert-banner.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-critical {
+            background: #dc2626;
+            color: white;
+        }
+
+        .badge-high {
+            background: #ef4444;
+            color: white;
+        }
+
+        .badge-medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .badge-low {
+            background: #3b82f6;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(239, 68, 68, 0.5);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(239, 68, 68, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Network Security Monitor</h1>
+            <div class="threat-level">
+                <span>Threat Level:</span>
+                <div class="threat-badge threat-low" id="threatBadge">LOW</div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <button onclick="startMonitoring()" class="safe">▶ Start Monitoring</button>
+            <button onclick="stopMonitoring()">⏸ Stop Monitoring</button>
+            <button onclick="blockSuspicious()">🚫 Block Suspicious IPs</button>
+            <button onclick="exportSecurityLog()">📥 Export Security Log</button>
+            <button onclick="clearAlerts()" class="safe">✓ Clear Alerts</button>
+        </div>
+
+        <div class="alert-banner" id="alertBanner">
+            ⚠️ SECURITY ALERT: Suspicious activity detected!
+        </div>
+
+        <!-- Key Security Metrics -->
+        <div class="grid">
+            <div class="card alert">
+                <h2>🚨 Active Threats</h2>
+                <div class="metric">
+                    <span class="metric-label">Suspicious Connections</span>
+                    <span class="metric-value danger" id="suspiciousCount">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Port Scans Detected</span>
+                    <span class="metric-value warning" id="portScans">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Failed Auth Attempts</span>
+                    <span class="metric-value danger" id="failedAuth">0</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🌐 Network Activity</h2>
+                <div class="metric">
+                    <span class="metric-label">Total Connections</span>
+                    <span class="metric-value" id="totalConnections">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Unique IPs</span>
+                    <span class="metric-value" id="uniqueIPs">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Data Transferred</span>
+                    <span class="metric-value" id="dataTransferred">0 MB</span>
+                </div>
+            </div>
+
+            <div class="card warning">
+                <h2>⚠️ Anomalies Detected</h2>
+                <div class="metric">
+                    <span class="metric-label">Unusual Traffic Spike</span>
+                    <span class="metric-value warning" id="trafficSpikes">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Unknown Protocols</span>
+                    <span class="metric-value warning" id="unknownProtocols">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Geo Anomalies</span>
+                    <span class="metric-value warning" id="geoAnomalies">0</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔒 Security Status</h2>
+                <div class="metric">
+                    <span class="metric-label">Firewall</span>
+                    <span class="metric-value safe" id="firewallStatus">ACTIVE</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Blocked IPs</span>
+                    <span class="metric-value" id="blockedIPs">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Last Scan</span>
+                    <span class="metric-value" style="font-size: 14px;" id="lastScan">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-container">
+            <h2>📊 Connection Activity Over Time</h2>
+            <canvas id="activityChart"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h2>🌍 Top Source Countries/IPs</h2>
+            <canvas id="geoChart"></canvas>
+        </div>
+
+        <!-- Suspicious Activity Log -->
+        <div class="card alert" style="margin-bottom: 20px;">
+            <h2>🔴 Suspicious Activity Log</h2>
+            <div class="suspicious-list" id="suspiciousList">
+                <p style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                    No suspicious activity detected yet...
+                </p>
+            </div>
+        </div>
+
+        <!-- Active Connections -->
+        <div class="card">
+            <h2>🔗 Active Network Connections</h2>
+            <div class="suspicious-list" id="connectionsList">
+                <p style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                    Click "Start Monitoring" to view connections...
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="security-app.js"></script>
+</body>
+</html>
