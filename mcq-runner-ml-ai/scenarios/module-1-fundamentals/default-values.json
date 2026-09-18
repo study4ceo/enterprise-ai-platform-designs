@@ -1,0 +1,58 @@
+{
+  "id": "m1_003",
+  "module": 1,
+  "title": "Default Values and Omitting Parameters",
+  "difficulty": "easy",
+  "category": "Schema Design",
+  "timeLimit": 240,
+  "points": 10,
+  
+  "query": "Start a backup of the database",
+  
+  "tools": [
+    {
+      "name": "start_backup",
+      "description": "Initiate database backup",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "database_name": {
+            "type": "string",
+            "description": "Name of database to backup"
+          },
+          "compression": {
+            "type": "boolean",
+            "description": "Enable compression (default: true)"
+          },
+          "encryption": {
+            "type": "boolean",
+            "description": "Enable encryption (default: false)"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Backup destination path (default: '/backups')"
+          }
+        },
+        "required": ["database_name"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "start_backup",
+    "arguments": {
+      "database_name": "database"
+    }
+  },
+  
+  "explanation": "Only 'database_name' is required. The user said 'the database' (referring to the main one), so we use 'database'. The other parameters (compression, encryption, destination) have DEFAULT values and the user didn't specify preferences, so we OMIT them. They'll automatically use defaults: compression=true, encryption=false, destination='/backups'. Best practice: only include parameters that are required or explicitly mentioned.",
+  
+  "learning_points": [
+    "Default values apply when parameters are omitted",
+    "Only include parameters that are required or user specified",
+    "Don't add optional parameters 'just because' - let defaults work",
+    "Extracting 'the database' → 'database' (generic reference)"
+  ],
+  
+  "tags": ["module-1", "defaults", "optional-parameters", "schema-design"]
+}

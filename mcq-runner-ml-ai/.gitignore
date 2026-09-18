@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.env
+.venv
+venv/
+*.log
+
+# Node.js frontend
+frontend-node/node_modules/
+frontend-node/.next/
+frontend-node/out/
+frontend-node/build/
+frontend-node/.env*.local
+
+# Data & Models
+data/
+scenarios/*.db
+*.sqlite
+*.pkl
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store

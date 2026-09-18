@@ -1,0 +1,109 @@
+{
+  "id": "hard_002",
+  "title": "Choosing Between Similar Functions",
+  "difficulty": "hard",
+  "category": "Decision Making",
+  "timeLimit": 420,
+  "points": 30,
+  
+  "query": "Remove all spam messages from my inbox that are older than 30 days",
+  
+  "tools": [
+    {
+      "name": "delete_messages",
+      "description": "Delete specific messages by their IDs",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Array of message IDs to delete"
+          }
+        },
+        "required": ["message_ids"]
+      }
+    },
+    {
+      "name": "bulk_delete_by_criteria",
+      "description": "Delete messages matching multiple criteria",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "string",
+            "description": "Folder to search in (e.g., 'inbox', 'spam')"
+          },
+          "labels": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Labels to filter by (e.g., ['spam', 'promotional'])"
+          },
+          "older_than_days": {
+            "type": "integer",
+            "description": "Delete messages older than this many days"
+          }
+        },
+        "required": ["folder"]
+      }
+    },
+    {
+      "name": "move_to_trash",
+      "description": "Move messages to trash folder",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["message_ids"]
+      }
+    },
+    {
+      "name": "mark_as_spam",
+      "description": "Mark messages as spam",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["message_ids"]
+      }
+    },
+    {
+      "name": "empty_spam_folder",
+      "description": "Delete all messages in spam folder",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "bulk_delete_by_criteria",
+    "arguments": {
+      "folder": "inbox",
+      "labels": ["spam"],
+      "older_than_days": 30
+    }
+  },
+  
+  "explanation": "This requires careful analysis. User wants spam messages FROM INBOX (not spam folder), filtered by age (30 days). The best function is bulk_delete_by_criteria because: (1) It can filter by folder (inbox), (2) It can filter by labels (['spam']), (3) It can filter by age (older_than_days: 30). Other options don't work: delete_messages requires specific IDs (we don't have them), empty_spam_folder empties the spam folder (but messages are in inbox), mark_as_spam doesn't delete.",
+  
+  "hints": [
+    "User wants spam messages FROM INBOX, not from spam folder",
+    "Need to filter by: location (inbox), label (spam), and age (30 days)",
+    "bulk_delete_by_criteria supports all three filters",
+    "delete_messages won't work - we don't have specific message IDs",
+    "empty_spam_folder won't work - messages are in inbox, not spam folder",
+    "labels should be an array: ['spam']"
+  ],
+  
+  "tags": ["hard", "decision-making", "similar-functions", "filtering", "critical-thinking"]
+}

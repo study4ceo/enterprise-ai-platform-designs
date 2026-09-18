@@ -1,0 +1,57 @@
+{
+  "id": "m1_004",
+  "module": 1,
+  "title": "Date and Time Format Handling",
+  "difficulty": "easy",
+  "category": "Schema Design",
+  "timeLimit": 240,
+  "points": 10,
+  
+  "query": "Schedule a meeting for tomorrow at 2:30 PM",
+  
+  "tools": [
+    {
+      "name": "create_meeting",
+      "description": "Create a calendar meeting",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Meeting title"
+          },
+          "datetime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Meeting date and time in ISO 8601 format (e.g., '2024-03-15T14:30:00Z')"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "description": "Meeting duration in minutes (default: 60)"
+          }
+        },
+        "required": ["title", "datetime"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "create_meeting",
+    "arguments": {
+      "title": "meeting",
+      "datetime": "2024-03-16T14:30:00Z"
+    }
+  },
+  
+  "explanation": "Date/time format must match the schema requirement: ISO 8601 format. Convert '2:30 PM' to 24-hour format '14:30', and 'tomorrow' to actual date (assuming today is March 15, 2024). Format: YYYY-MM-DDTHH:MM:SSZ. The 'T' separates date and time, 'Z' indicates UTC timezone. Note: In real systems, you'd need current date context. Here we demonstrate format understanding.",
+  
+  "learning_points": [
+    "ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ",
+    "Convert 12-hour to 24-hour: 2:30 PM → 14:30",
+    "Relative dates ('tomorrow') need conversion to absolute dates",
+    "'T' separates date and time in ISO format",
+    "'Z' suffix indicates UTC (can also use +HH:MM for timezones)"
+  ],
+  
+  "tags": ["module-1", "date-time", "iso-8601", "format-conversion", "schema-design"]
+}

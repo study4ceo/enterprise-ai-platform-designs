@@ -1,0 +1,96 @@
+{
+  "id": "m3_001",
+  "module": 3,
+  "title": "Type Validation and Coercion",
+  "difficulty": "medium",
+  "category": "Parameter Validation",
+  "timeLimit": 300,
+  "points": 20,
+  
+  "query": "Set the maximum connections to fifty and enable auto-scaling",
+  
+  "tools": [
+    {
+      "name": "update_server_config",
+      "description": "Update server configuration",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "max_connections": {
+            "type": "integer",
+            "description": "Maximum number of connections (numeric value)"
+          },
+          "auto_scaling": {
+            "type": "boolean",
+            "description": "Enable or disable auto-scaling (true/false)"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "Connection timeout in seconds"
+          }
+        },
+        "required": ["max_connections"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "update_server_config",
+    "arguments": {
+      "max_connections": 50,
+      "auto_scaling": true
+    }
+  },
+  
+  "explanation": "This tests TYPE VALIDATION. The query says 'fifty' (text) but max_connections requires INTEGER type. You must convert 'fifty' → 50 (numeric). Similarly, 'enable' means true (boolean). Common type coercion: 'yes'/'enable'/'on' → true, 'no'/'disable'/'off' → false, text numbers → integers. Always match the schema's type requirements.",
+  
+  "learning_points": [
+    "Always match the schema's type requirements exactly",
+    "Convert text numbers to actual numbers: 'fifty' → 50",
+    "Convert enable/disable to booleans: 'enable' → true",
+    "Integers must be numbers, not strings: 50 not '50'",
+    "Booleans must be true/false, not 'true'/'false' strings"
+  ],
+  
+  "wrong_answers": [
+    {
+      "answer": {
+        "selected_function": "update_server_config",
+        "arguments": {
+          "max_connections": "fifty",
+          "auto_scaling": true
+        }
+      },
+      "why_wrong": "max_connections requires INTEGER type, not string. 'fifty' should be converted to 50"
+    },
+    {
+      "answer": {
+        "selected_function": "update_server_config",
+        "arguments": {
+          "max_connections": 50,
+          "auto_scaling": "enable"
+        }
+      },
+      "why_wrong": "auto_scaling requires BOOLEAN type. 'enable' should be converted to true (not the string 'enable')"
+    },
+    {
+      "answer": {
+        "selected_function": "update_server_config",
+        "arguments": {
+          "max_connections": "50",
+          "auto_scaling": true
+        }
+      },
+      "why_wrong": "max_connections should be integer 50, not string '50'. Remove quotes from numbers."
+    }
+  ],
+  
+  "hints": [
+    "Check the type for each parameter in the schema",
+    "max_connections is type 'integer' - convert 'fifty' to 50",
+    "auto_scaling is type 'boolean' - convert 'enable' to true",
+    "Don't use strings when numbers or booleans are required"
+  ],
+  
+  "tags": ["module-3", "type-validation", "type-coercion", "parameter-types"]
+}

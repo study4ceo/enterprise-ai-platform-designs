@@ -1,0 +1,182 @@
+{
+  "id": "easy_001",
+  "title": "Profile and Watch - Gmail API",
+  "difficulty": "easy",
+  "category": "Gmail API",
+  "timeLimit": 300,
+  "points": 10,
+  
+  "query": "Can you grab my profile info real quick and stop watching my mailbox? I don't need live updates right now.",
+  
+  "tools": [
+    {
+      "name": "list_drafts",
+      "description": "Lists the drafts in the user's mailbox",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "maxResults": {
+            "type": "integer",
+            "description": "Maximum number of drafts to return (default: 100, max: 500)"
+          }
+        }
+      }
+    },
+    {
+      "name": "send_draft",
+      "description": "Sends the specified draft to the recipients in the To, Cc, and Bcc headers",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "draftId": {
+            "type": "string",
+            "description": "The ID of the draft to send"
+          }
+        },
+        "required": ["draftId"]
+      }
+    },
+    {
+      "name": "list_messages",
+      "description": "Lists the messages in the user's mailbox",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "maxResults": {
+            "type": "integer",
+            "description": "Maximum number of messages to return"
+          },
+          "q": {
+            "type": "string",
+            "description": "Query string for filtering messages"
+          }
+        }
+      }
+    },
+    {
+      "name": "batch_delete_messages",
+      "description": "Deletes many messages by ID",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of message IDs to delete"
+          }
+        },
+        "required": ["ids"]
+      }
+    },
+    {
+      "name": "get_vacation_settings",
+      "description": "Gets vacation responder settings",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "update_vacation_settings",
+      "description": "Updates vacation responder settings",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "enableAutoReply": {
+            "type": "boolean",
+            "description": "Flag that controls whether Gmail automatically replies to messages"
+          },
+          "responseSubject": {
+            "type": "string",
+            "description": "Optional subject line"
+          },
+          "responseBodyPlainText": {
+            "type": "string",
+            "description": "Response body in plain text format"
+          }
+        },
+        "required": ["enableAutoReply"]
+      }
+    },
+    {
+      "name": "get_user_profile",
+      "description": "Gets the current user's Gmail profile",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "stop_user_watch",
+      "description": "Stop receiving push notifications for changes to the user's mailbox",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "list_labels",
+      "description": "Lists all labels in the user's mailbox",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "delete_label",
+      "description": "Immediately and permanently deletes the specified label and removes it from any messages",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "labelId": {
+            "type": "string",
+            "description": "The ID of the label to delete"
+          }
+        },
+        "required": ["labelId"]
+      }
+    },
+    {
+      "name": "create_filter",
+      "description": "Creates a filter for incoming emails",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "criteria": {
+            "type": "object",
+            "description": "Matching criteria for the filter"
+          },
+          "action": {
+            "type": "object",
+            "description": "Action to perform when a message matches the criteria"
+          }
+        },
+        "required": ["criteria", "action"]
+      }
+    }
+  ],
+  
+  "correct_answer": [
+    {
+      "selected_function": "get_user_profile",
+      "arguments": {}
+    },
+    {
+      "selected_function": "stop_user_watch",
+      "arguments": {}
+    }
+  ],
+  
+  "explanation": "The user is asking for two things: (1) 'grab my profile info' maps to get_user_profile, and (2) 'stop watching my mailbox' / 'don't need live updates' maps to stop_user_watch. Both functions require no parameters. This is a multi-function call scenario.",
+  
+  "hints": [
+    "The user wants TWO different things done - look for functions that match each request",
+    "Profile info = get_user_profile",
+    "Stop watching = stop_user_watch (stops push notifications)",
+    "Both functions take no parameters (empty object)"
+  ],
+  
+  "tags": ["multi-function", "gmail-api", "easy", "no-parameters"]
+}

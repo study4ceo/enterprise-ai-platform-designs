@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: turing-postgres
+    environment:
+      POSTGRES_USER: turing
+      POSTGRES_PASSWORD: turing123
+      POSTGRES_DB: turing_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - turing-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: turing-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - turing-network
+
+  # Golang Backend
+  backend-go:
+    build:
+      context: ./backend-go
+      dockerfile: Dockerfile
+    container_name: turing-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=turing
+      - DB_PASSWORD=turing123
+      - DB_NAME=turing_test
+      - REDIS_URL=redis:6379
+      - JWT_SECRET=your-super-secret-key-change-in-production
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend-go:/app
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - turing-network
+    restart: unless-stopped
+
+  # Node.js Frontend
+  frontend-node:
+    build:
+      context: ./frontend-node
+      dockerfile: Dockerfile
+    container_name: turing-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - API_URL=http://backend-go:8080
+    volumes:
+      - ./frontend-node:/app
+      - /app/node_modules
+    depends_on:
+      - backend-go
+    networks:
+      - turing-network
+    restart: unless-stopped
+
+  # Python Evaluator
+  evaluator-python:
+    build:
+      context: ./evaluator-python
+      dockerfile: Dockerfile
+    container_name: turing-evaluator
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL_NAME=gpt-4
+      - REDIS_URL=redis:6379
+    volumes:
+      - ./evaluator-python:/app
+    depends_on:
+      - redis
+    networks:
+      - turing-network
+    restart: unless-stopped
+
+  # Code Execution Sandbox (Docker-in-Docker)
+  sandbox:
+    image: docker:24-dind
+    container_name: turing-sandbox
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    volumes:
+      - docker-certs:/certs
+      - sandbox_data:/var/lib/docker
+    networks:
+      - turing-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  docker-certs:
+  sandbox_data:
+
+networks:
+  turing-network:
+    driver: bridge

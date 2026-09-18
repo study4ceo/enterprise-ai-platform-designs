@@ -1,0 +1,85 @@
+{
+  "id": "m2_003",
+  "module": 2,
+  "title": "Conditional Execution Based on Results",
+  "difficulty": "medium",
+  "category": "Multi-Tool Orchestration",
+  "timeLimit": 420,
+  "points": 20,
+  
+  "query": "Check if the server is running. If it's running, get its status. If it's not running, start it.",
+  
+  "tools": [
+    {
+      "name": "check_server",
+      "description": "Check if server is running",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "server_name": { "type": "string" }
+        },
+        "required": ["server_name"]
+      }
+    },
+    {
+      "name": "get_server_status",
+      "description": "Get detailed server status (only works if server is running)",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "server_name": { "type": "string" }
+        },
+        "required": ["server_name"]
+      }
+    },
+    {
+      "name": "start_server",
+      "description": "Start a server",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "server_name": { "type": "string" }
+        },
+        "required": ["server_name"]
+      }
+    }
+  ],
+  
+  "correct_answer": [
+    {
+      "step": 1,
+      "selected_function": "check_server",
+      "arguments": {
+        "server_name": "server"
+      }
+    },
+    {
+      "step": "2a",
+      "condition": "if step1.is_running === true",
+      "selected_function": "get_server_status",
+      "arguments": {
+        "server_name": "server"
+      }
+    },
+    {
+      "step": "2b",
+      "condition": "if step1.is_running === false",
+      "selected_function": "start_server",
+      "arguments": {
+        "server_name": "server"
+      }
+    }
+  ],
+  
+  "explanation": "This demonstrates CONDITIONAL BRANCHING in workflows. Step 1 checks the condition. Steps 2a/2b execute based on the result. This is an IF-THEN-ELSE pattern: IF running THEN get_status ELSE start_server. In production agents, this logic is handled by the orchestration layer based on actual results. The notation '2a' and '2b' shows these are alternative paths, not sequential steps.",
+  
+  "learning_points": [
+    "Workflows can have conditional branches based on results",
+    "IF-THEN-ELSE patterns are common in agentic systems",
+    "Step 1 determines which path (2a or 2b) executes",
+    "Only ONE of the conditional branches executes, not both",
+    "Real agents evaluate conditions dynamically at runtime"
+  ],
+  
+  "tags": ["module-2", "conditional-execution", "branching", "if-then-else", "orchestration"]
+}

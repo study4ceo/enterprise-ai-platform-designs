@@ -1,0 +1,80 @@
+{
+  "id": "easy_004",
+  "title": "Create Calendar Event",
+  "difficulty": "easy",
+  "category": "Calendar API",
+  "timeLimit": 240,
+  "points": 10,
+  
+  "query": "Schedule a meeting with the team for tomorrow at 3pm called 'Project Review'",
+  
+  "tools": [
+    {
+      "name": "create_calendar_event",
+      "description": "Create a new calendar event",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Event title"
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Start time in format 'tomorrow at 3pm' or ISO format"
+          },
+          "attendees": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of attendee emails (optional)"
+          }
+        },
+        "required": ["title", "start_time"]
+      }
+    },
+    {
+      "name": "send_email",
+      "description": "Send an email",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": { "type": "string" },
+          "subject": { "type": "string" },
+          "body": { "type": "string" }
+        },
+        "required": ["to", "subject", "body"]
+      }
+    },
+    {
+      "name": "get_calendar",
+      "description": "Get calendar events",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string" }
+        }
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "create_calendar_event",
+    "arguments": {
+      "title": "Project Review",
+      "start_time": "tomorrow at 3pm"
+    }
+  },
+  
+  "explanation": "User wants to CREATE a calendar event (not get calendar or send email). Extract the title 'Project Review' and time 'tomorrow at 3pm'. The 'attendees' parameter is optional, so we don't need to include it.",
+  
+  "hints": [
+    "User wants to 'schedule' which means CREATE an event",
+    "The function create_calendar_event is for creating events",
+    "Extract: title = 'Project Review', start_time = 'tomorrow at 3pm'",
+    "Attendees is optional, you can omit it"
+  ],
+  
+  "tags": ["single-function", "calendar", "easy", "parameter-extraction", "optional-params"]
+}

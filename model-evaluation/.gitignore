@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# Models
+models/
+*.pth
+*.pkl
+*.h5
+*.onnx
+checkpoints/
+
+# Data
+data/
+datasets/
+results/
+
+# Logs
+*.log
+logs/
+wandb/
+mlruns/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Evaluation results
+evaluations/
+metrics/

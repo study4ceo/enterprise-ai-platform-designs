@@ -1,0 +1,78 @@
+{
+  "id": "m3_003",
+  "module": 3,
+  "title": "Null vs Empty String vs Undefined",
+  "difficulty": "medium",
+  "category": "Parameter Validation",
+  "timeLimit": 360,
+  "points": 20,
+  
+  "query": "Create a user with name 'John Smith' and no email address",
+  
+  "tools": [
+    {
+      "name": "create_user",
+      "description": "Create a new user account",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "User's full name"
+          },
+          "email": {
+            "type": ["string", "null"],
+            "description": "User's email address (can be null if not provided)"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number (optional, omit if not provided)"
+          }
+        },
+        "required": ["name", "email"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "create_user",
+    "arguments": {
+      "name": "John Smith",
+      "email": null
+    }
+  },
+  
+  "explanation": "This tests understanding of NULL vs EMPTY vs UNDEFINED. Email is REQUIRED but allows null (type: ['string', 'null']). User said 'no email' → use null (explicit no value). Don't use empty string '' (that's still a value). Phone is OPTIONAL and not mentioned → OMIT it entirely (undefined). Three states: null (explicit absence), '' (empty but present), undefined (omitted). Check schema types carefully!",
+  
+  "learning_points": [
+    "null = explicitly no value (must be allowed in schema: type: ['string', 'null'])",
+    "empty string '' = empty but present (different from null)",
+    "undefined = omitted entirely (don't include the key)",
+    "If schema says type: ['string', 'null'], you can pass null",
+    "If field is optional and not mentioned, omit it (undefined)"
+  ],
+  
+  "wrong_answers": [
+    {
+      "answer": {
+        "selected_function": "create_user",
+        "arguments": {
+          "name": "John Smith",
+          "email": ""
+        }
+      },
+      "why_wrong": "Empty string '' is not the same as null. User has NO email, not an empty one."
+    },
+    {
+      "answer": {
+        "selected_function": "create_user",
+        "arguments": {
+          "name": "John Smith"
+        }
+      },
+      "why_wrong": "email is REQUIRED (in required array), even though it can be null. Must explicitly pass null."
+    }
+  ],
+  
+  "tags": ["module-3", "null-handling", "undefined", "empty-string", "validation", "type-system"]
+}

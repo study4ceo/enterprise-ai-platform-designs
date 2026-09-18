@@ -1,0 +1,58 @@
+{
+  "id": "easy_006",
+  "title": "Greeting - No Action Required",
+  "difficulty": "easy",
+  "category": "Decision Making",
+  "timeLimit": 180,
+  "points": 10,
+  
+  "query": "Hi! How are you doing today?",
+  
+  "tools": [
+    {
+      "name": "get_time",
+      "description": "Get current time",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "timezone": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "send_greeting",
+      "description": "Send a greeting message",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        },
+        "required": ["message"]
+      }
+    },
+    {
+      "name": "get_weather",
+      "description": "Get weather information",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": { "type": "string" }
+        },
+        "required": ["location"]
+      }
+    }
+  ],
+  
+  "correct_answer": "N/A",
+  
+  "explanation": "The user is just greeting and asking how you're doing - they're not requesting any specific action. This is a conversational statement that should be answered with text, not a function call. Answer: N/A",
+  
+  "hints": [
+    "User is making small talk, not requesting an action",
+    "No function is appropriate here",
+    "Even though 'send_greeting' exists, user isn't asking us to DO anything",
+    "Answer should be: N/A"
+  ],
+  
+  "tags": ["no-function", "decision-making", "conversational", "easy"]
+}

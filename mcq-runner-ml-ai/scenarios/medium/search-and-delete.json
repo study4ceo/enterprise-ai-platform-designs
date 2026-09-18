@@ -1,0 +1,110 @@
+{
+  "id": "medium_002",
+  "title": "Search and Delete Messages",
+  "difficulty": "medium",
+  "category": "Email Management",
+  "timeLimit": 360,
+  "points": 20,
+  
+  "query": "Find all emails from spam@ads.com and delete them",
+  
+  "tools": [
+    {
+      "name": "search_messages",
+      "description": "Search for messages matching a query",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query (e.g., 'from:user@example.com')"
+          },
+          "maxResults": {
+            "type": "integer",
+            "description": "Maximum results to return (default: 100)"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "delete_messages",
+      "description": "Delete messages by their IDs",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of message IDs to delete"
+          }
+        },
+        "required": ["message_ids"]
+      }
+    },
+    {
+      "name": "batch_delete_by_query",
+      "description": "Delete all messages matching a search query",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query to match messages for deletion"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "mark_as_spam",
+      "description": "Mark messages as spam",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["message_ids"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "batch_delete_by_query",
+    "arguments": {
+      "query": "from:spam@ads.com"
+    }
+  },
+  
+  "explanation": "The user wants to find AND delete emails in one action. The function 'batch_delete_by_query' is the most efficient - it searches and deletes in one call. We could use 'search_messages' then 'delete_messages', but batch_delete_by_query is simpler. The query format is 'from:spam@ads.com'.",
+  
+  "alternative_answers": [
+    {
+      "answer": [
+        {
+          "selected_function": "search_messages",
+          "arguments": { "query": "from:spam@ads.com" }
+        },
+        {
+          "selected_function": "delete_messages",
+          "arguments": { "message_ids": ["<placeholder_for_search_results>"] }
+        }
+      ],
+      "note": "This would also work but requires two steps. The single-function answer is preferred."
+    }
+  ],
+  
+  "hints": [
+    "User wants to find AND delete - look for a function that does both",
+    "batch_delete_by_query can search and delete in one call",
+    "Query format: 'from:spam@ads.com'",
+    "This is more efficient than search then delete separately"
+  ],
+  
+  "tags": ["medium", "email", "search", "delete", "query-format", "efficiency"]
+}

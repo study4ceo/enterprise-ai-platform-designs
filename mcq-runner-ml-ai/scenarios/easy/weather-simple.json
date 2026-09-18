@@ -1,0 +1,90 @@
+{
+  "id": "easy_002",
+  "title": "Simple Weather Query",
+  "difficulty": "easy",
+  "category": "Weather API",
+  "timeLimit": 180,
+  "points": 10,
+  
+  "query": "What's the weather like in San Francisco?",
+  
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get current weather for a location",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name or location"
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["celsius", "fahrenheit"],
+            "description": "Temperature unit (optional, defaults to fahrenheit)"
+          }
+        },
+        "required": ["location"]
+      }
+    },
+    {
+      "name": "get_forecast",
+      "description": "Get weather forecast for next 7 days",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name or location"
+          },
+          "days": {
+            "type": "integer",
+            "description": "Number of days (1-7)"
+          }
+        },
+        "required": ["location", "days"]
+      }
+    },
+    {
+      "name": "send_email",
+      "description": "Send an email",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient email address"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject"
+          },
+          "body": {
+            "type": "string",
+            "description": "Email body"
+          }
+        },
+        "required": ["to", "subject", "body"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "get_weather",
+    "arguments": {
+      "location": "San Francisco"
+    }
+  },
+  
+  "explanation": "The user is asking for current weather ('what's the weather like') in San Francisco. The get_weather function is the correct choice. We only need to provide the required 'location' parameter. The 'unit' parameter is optional and can be omitted.",
+  
+  "hints": [
+    "User wants CURRENT weather, not forecast",
+    "get_weather is for current conditions",
+    "Location is required, unit is optional",
+    "Extract 'San Francisco' from the query"
+  ],
+  
+  "tags": ["single-function", "weather", "easy", "parameter-extraction"]
+}

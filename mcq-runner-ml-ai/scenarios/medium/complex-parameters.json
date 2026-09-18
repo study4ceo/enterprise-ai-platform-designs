@@ -1,0 +1,85 @@
+{
+  "id": "medium_004",
+  "title": "Complex Parameter Types",
+  "difficulty": "medium",
+  "category": "Data Types",
+  "timeLimit": 360,
+  "points": 20,
+  
+  "query": "Create a new project called 'Website Redesign' with tasks: 'Design mockups', 'Build homepage', and 'Test on mobile'. Set the priority to high.",
+  
+  "tools": [
+    {
+      "name": "create_project",
+      "description": "Create a new project",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name"
+          },
+          "tasks": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of task names"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Project priority level"
+          },
+          "assignees": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of assignee emails (optional)"
+          }
+        },
+        "required": ["name", "tasks"]
+      }
+    },
+    {
+      "name": "list_projects",
+      "description": "List all projects",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "add_task",
+      "description": "Add a task to existing project",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "project_id": { "type": "string" },
+          "task_name": { "type": "string" }
+        },
+        "required": ["project_id", "task_name"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "create_project",
+    "arguments": {
+      "name": "Website Redesign",
+      "tasks": ["Design mockups", "Build homepage", "Test on mobile"],
+      "priority": "high"
+    }
+  },
+  
+  "explanation": "User wants to CREATE a new project with multiple tasks. Key points: (1) 'tasks' is an ARRAY of strings, use square brackets: [\"task1\", \"task2\", \"task3\"], (2) 'priority' should be 'high' (lowercase, from enum), (3) 'assignees' is optional so we can omit it. Make sure to extract all three task names from the query.",
+  
+  "hints": [
+    "User wants to CREATE, not list or add to existing project",
+    "The 'tasks' parameter is an ARRAY - use square brackets: [...]",
+    "Extract all 3 tasks from the query",
+    "Priority should be lowercase: 'high' not 'High'",
+    "assignees is optional, you can skip it"
+  ],
+  
+  "tags": ["arrays", "complex-types", "parameter-extraction", "medium"]
+}

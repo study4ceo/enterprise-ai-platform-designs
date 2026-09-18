@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# PDFs (if generated)
+generated/
+output/
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Processed data
+processed/
+cache/

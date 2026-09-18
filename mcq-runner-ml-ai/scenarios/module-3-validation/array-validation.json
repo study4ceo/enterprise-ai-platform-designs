@@ -1,0 +1,57 @@
+{
+  "id": "m3_002",
+  "module": 3,
+  "title": "Array Parameter Validation",
+  "difficulty": "medium",
+  "category": "Parameter Validation",
+  "timeLimit": 300,
+  "points": 20,
+  
+  "query": "Add tags: urgent, customer-request, and bug to this ticket",
+  
+  "tools": [
+    {
+      "name": "add_tags",
+      "description": "Add tags to a ticket",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "description": "Ticket ID (defaults to current ticket)"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "minItems": 1,
+            "maxItems": 10,
+            "description": "Tags to add (lowercase, alphanumeric and hyphens only)"
+          }
+        },
+        "required": ["tags"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "add_tags",
+    "arguments": {
+      "tags": ["urgent", "customer-request", "bug"]
+    }
+  },
+  
+  "explanation": "Array validation has multiple constraints: (1) Array format: ['item1', 'item2', 'item3'], (2) Item pattern: lowercase, alphanumeric, hyphens only, (3) minItems: 1 (at least one), (4) maxItems: 10 (max ten). The user provided 3 tags already in valid format. Key: all items must match the pattern. If user said 'Customer Request' (with space/caps), you'd need to convert to 'customer-request'.",
+  
+  "learning_points": [
+    "Arrays have: type validation, item count constraints, item format rules",
+    "Each array item must match the 'items' schema",
+    "Patterns (regex) constrain string format",
+    "Convert user input to match constraints: spaces → hyphens, uppercase → lowercase",
+    "Check minItems/maxItems constraints"
+  ],
+  
+  "tags": ["module-3", "arrays", "validation", "patterns", "constraints"]
+}

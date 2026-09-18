@@ -1,0 +1,112 @@
+{
+  "id": "m5_004",
+  "module": 5,
+  "title": "Rate Limiting and Abuse Prevention",
+  "difficulty": "hard",
+  "category": "Security",
+  "timeLimit": 420,
+  "points": 30,
+  
+  "query": "A user's agent is calling send_email 1000 times per minute. What's the BEST approach to prevent abuse while maintaining legitimate use?",
+  
+  "options": [
+    {
+      "id": "a",
+      "text": "Block the user completely after detecting high volume"
+    },
+    {
+      "id": "b",
+      "text": "Implement per-user, per-function rate limits with exponential backoff"
+    },
+    {
+      "id": "c",
+      "text": "Add CAPTCHA challenges for each function call"
+    },
+    {
+      "id": "d",
+      "text": "Tell the LLM to rate-limit itself through prompts"
+    }
+  ],
+  
+  "correct_answer": "b",
+  
+  "explanation": "PER-USER, PER-FUNCTION RATE LIMITS (B) balance security and usability. Implementation: (1) Track calls per user per function in sliding window, (2) Set reasonable limits (e.g., 10 emails/min), (3) Return 429 error when exceeded with retry-after header, (4) Exponential backoff prevents thundering herd. Option A is too harsh (could be legitimate spike). Option C breaks UX. Option D is insecure (LLM can't enforce limits). Rate limits should be at execution layer with monitoring.",
+  
+  "learning_points": [
+    "Rate limiting prevents abuse while allowing legitimate use",
+    "Implement per-user AND per-function granularity",
+    "Use sliding window algorithm for accurate rate tracking",
+    "Return 429 (Too Many Requests) with Retry-After header",
+    "Different functions need different limits (send_email: 10/min, search: 100/min)",
+    "Monitor for abuse patterns, not just volume",
+    "Implement exponential backoff in retry logic"
+  ],
+  
+  "implementation_details": {
+    "rate_limit_tiers": [
+      {
+        "function_category": "expensive_operations",
+        "examples": ["send_email", "charge_payment", "create_resource"],
+        "limit": "10 per minute per user"
+      },
+      {
+        "function_category": "read_operations",
+        "examples": ["get_data", "search", "list"],
+        "limit": "100 per minute per user"
+      },
+      {
+        "function_category": "admin_operations",
+        "examples": ["delete_all", "update_permissions"],
+        "limit": "5 per hour per user"
+      }
+    ],
+    "algorithms": [
+      {
+        "type": "Sliding Window",
+        "pros": "Accurate, smooth rate limiting",
+        "cons": "More memory, complex"
+      },
+      {
+        "type": "Token Bucket",
+        "pros": "Allows bursts, simple",
+        "cons": "Less precise"
+      },
+      {
+        "type": "Fixed Window",
+        "pros": "Simple, low memory",
+        "cons": "Allows spikes at window boundaries"
+      }
+    ],
+    "response_codes": {
+      "200": "Success",
+      "429": "Rate limit exceeded",
+      "headers": {
+        "X-RateLimit-Limit": "10",
+        "X-RateLimit-Remaining": "0",
+        "X-RateLimit-Reset": "1625097600",
+        "Retry-After": "45"
+      }
+    }
+  },
+  
+  "abuse_detection": [
+    "Sudden spike in call volume",
+    "Repeated failed authentication attempts",
+    "Sequential ID enumeration (trying id=1,2,3...)",
+    "Unusual call patterns (midnight activity for normally daytime user)",
+    "Same function called with same parameters repeatedly",
+    "Geographic anomalies (calls from multiple countries simultaneously)"
+  ],
+  
+  "production_practices": [
+    "Log all rate limit violations",
+    "Alert on sustained high-volume from single user",
+    "Implement circuit breakers for downstream services",
+    "Use distributed rate limiting (Redis, not in-memory)",
+    "Different limits for different user tiers (free vs paid)",
+    "Gradual limit increases for trusted users",
+    "Manual review for repeated violations"
+  ],
+  
+  "tags": ["module-5", "rate-limiting", "abuse-prevention", "security", "production", "429-errors"]
+}

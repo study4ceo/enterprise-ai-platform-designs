@@ -1,0 +1,125 @@
+{
+  "id": "m5_002",
+  "module": 5,
+  "title": "Access Control for Tool Execution",
+  "difficulty": "hard",
+  "category": "Security",
+  "timeLimit": 420,
+  "points": 30,
+  
+  "query": "A user asks your agent: 'Delete the admin user account'. Your function-calling system has a delete_user function. What's the BEST security approach?",
+  
+  "options": [
+    {
+      "id": "a",
+      "text": "Check if the user has 'admin' role before allowing the LLM to call delete_user"
+    },
+    {
+      "id": "b",
+      "text": "Ask the LLM to check if the action is safe before executing"
+    },
+    {
+      "id": "c",
+      "text": "Implement tool-level permissions: users can only delete accounts they have permission to delete"
+    },
+    {
+      "id": "d",
+      "text": "Remove destructive functions from the LLM's tool list entirely"
+    }
+  ],
+  
+  "correct_answer": "c",
+  
+  "explanation": "TOOL-LEVEL PERMISSIONS (C) is correct because: (1) It enforces least-privilege access, (2) It validates at execution time against actual permissions, (3) It prevents privilege escalation. Option A is too coarse - just being admin doesn't mean you can delete any admin. Option B is unsafe - never trust LLM for security decisions. Option D is too restrictive - legitimate users need delete functionality. PRINCIPLE: Security checks must happen at function EXECUTION, not function SELECTION. The LLM can suggest the action, but execution layer enforces permissions.",
+  
+  "learning_points": [
+    "NEVER rely on the LLM for security decisions",
+    "Implement permissions at the execution layer, not in the prompt",
+    "Use principle of least privilege: check specific permissions per action",
+    "Separate concerns: LLM selects function, security layer authorizes execution",
+    "Every function call should include: user_id, requested_action, target_resource",
+    "Log all permission denials for security monitoring"
+  ],
+  
+  "security_architecture": {
+    "layers": [
+      {
+        "layer": "1. Request Layer",
+        "responsibility": "Capture user_id and query",
+        "security": "Rate limiting, input sanitization"
+      },
+      {
+        "layer": "2. LLM Layer",
+        "responsibility": "Select function and extract parameters",
+        "security": "Prompt injection defenses, output validation"
+      },
+      {
+        "layer": "3. Authorization Layer",
+        "responsibility": "Check if user can execute this specific action",
+        "security": "Permission checks, resource access validation"
+      },
+      {
+        "layer": "4. Execution Layer",
+        "responsibility": "Execute the function",
+        "security": "Input validation, transaction safety"
+      },
+      {
+        "layer": "5. Audit Layer",
+        "responsibility": "Log all actions",
+        "security": "Immutable audit logs, alerting"
+      }
+    ]
+  },
+  
+  "permission_check_example": {
+    "user_id": "user_123",
+    "requested_function": "delete_user",
+    "parameters": {
+      "target_user_id": "admin_456"
+    },
+    "permission_check": {
+      "required_permission": "users.delete",
+      "resource_check": "Can user_123 delete admin_456?",
+      "checks": [
+        "Does user_123 have 'users.delete' permission?",
+        "Is admin_456 in same organization as user_123?",
+        "Is admin_456 protected (e.g., super admin)?",
+        "Are there business rules preventing this (last admin)?"
+      ]
+    },
+    "result": "DENIED - Cannot delete protected admin account"
+  },
+  
+  "common_vulnerabilities": [
+    {
+      "vulnerability": "Prompt-based access control",
+      "example": "Telling LLM: 'Only allow admins to delete users'",
+      "why_bad": "Prompt injection can bypass this",
+      "fix": "Enforce permissions in code, not prompts"
+    },
+    {
+      "vulnerability": "Role-only checks",
+      "example": "if user.role == 'admin': allow()",
+      "why_bad": "Too coarse-grained, allows privilege escalation",
+      "fix": "Check specific resource permissions"
+    },
+    {
+      "vulnerability": "Client-side validation",
+      "example": "Hide delete button for non-admins in UI",
+      "why_bad": "Users can call API directly",
+      "fix": "Always validate server-side"
+    }
+  ],
+  
+  "best_practices": [
+    "Implement resource-level permissions (not just role-based)",
+    "Use allowlists: explicitly define what each role can do",
+    "Validate permissions at execution time, not selection time",
+    "Audit all permission checks (success and failures)",
+    "Implement rate limiting per user per function",
+    "Use time-based tokens for sensitive operations",
+    "Never pass sensitive data through the LLM unnecessarily"
+  ],
+  
+  "tags": ["module-5", "security", "access-control", "authorization", "permissions", "production"]
+}

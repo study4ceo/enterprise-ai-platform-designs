@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# Database
+*.db
+*.sqlite
+idempotency_keys.db
+
+# Logs
+*.log
+logs/
+
+# Redis data
+dump.rdb
+
+# Docker volumes
+volumes/

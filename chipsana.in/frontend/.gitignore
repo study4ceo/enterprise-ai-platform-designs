@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Env
+.env*.local
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+
+# Misc
+.DS_Store
+*.pem
+.vercel

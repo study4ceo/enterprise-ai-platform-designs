@@ -1,0 +1,77 @@
+{
+  "id": "m6_001",
+  "module": 6,
+  "title": "Testing Function Calling Systems",
+  "difficulty": "hard",
+  "category": "Testing & Quality",
+  "timeLimit": 480,
+  "points": 30,
+  
+  "query": "Which testing approach is most appropriate for validating that an LLM correctly selects between 50+ available functions?",
+  
+  "options": [
+    {
+      "id": "a",
+      "text": "Unit tests that mock the LLM and test each function individually"
+    },
+    {
+      "id": "b",
+      "text": "End-to-end tests with real LLM calls covering common user scenarios"
+    },
+    {
+      "id": "c",
+      "text": "Golden dataset evaluation with representative queries and expected function calls"
+    },
+    {
+      "id": "d",
+      "text": "Manual testing by QA team for every possible function combination"
+    }
+  ],
+  
+  "correct_answer": "c",
+  
+  "explanation": "Testing LLM function calling requires a GOLDEN DATASET approach: (1) Collect representative real-world queries, (2) Define expected function calls for each, (3) Run the LLM against the dataset, (4) Compare actual vs expected, (5) Track regression. Unit tests (A) can't test selection logic since it's in the LLM. E2E tests (B) are valuable but don't provide comprehensive coverage. Manual testing (D) doesn't scale. Golden datasets allow: automated regression testing, coverage tracking, performance benchmarking, and A/B testing of prompt changes.",
+  
+  "learning_points": [
+    "LLM systems need different testing strategies than traditional software",
+    "Golden datasets = representative queries + expected outputs",
+    "Track metrics: accuracy, precision, recall for function selection",
+    "Test prompt changes against baseline with golden dataset",
+    "Combine: golden dataset (primary) + E2E (critical paths) + integration tests",
+    "Monitor production: log actual calls vs expected for continuous improvement"
+  ],
+  
+  "detailed_explanation": {
+    "why_golden_dataset": [
+      "Provides deterministic baseline for regression testing",
+      "Enables quantitative measurement (accuracy, F1 score)",
+      "Allows A/B testing of prompt engineering changes",
+      "Scales to hundreds of test cases efficiently",
+      "Can be version-controlled and peer-reviewed"
+    ],
+    "complementary_approaches": [
+      "Unit tests: for parameter validation logic",
+      "Integration tests: for function execution pipeline",
+      "E2E tests: for critical user journeys",
+      "Canary testing: gradual rollout with monitoring",
+      "Shadow testing: run new version alongside production"
+    ],
+    "what_to_measure": [
+      "Selection accuracy: % of queries where correct function was chosen",
+      "Parameter accuracy: % where all parameters extracted correctly",
+      "Latency: p50, p95, p99 response times",
+      "Cost per query: token usage and API costs",
+      "Failure modes: what types of queries fail most often"
+    ]
+  },
+  
+  "production_considerations": [
+    "Store production queries that failed for dataset expansion",
+    "Use semantic similarity to avoid duplicate test cases",
+    "Include edge cases: ambiguous queries, missing info, invalid requests",
+    "Test across different LLM temperatures and models",
+    "Version your golden dataset with your code"
+  ],
+  
+  "tags": ["module-6", "testing", "golden-dataset", "quality-assurance", "production"]
+}

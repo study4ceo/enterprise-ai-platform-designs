@@ -1,0 +1,126 @@
+{
+  "id": "m4_001",
+  "module": 4,
+  "title": "State Management in Multi-Step Workflows",
+  "difficulty": "hard",
+  "category": "Agentic Workflows",
+  "timeLimit": 480,
+  "points": 30,
+  
+  "query": "Look up the user's saved payment method and charge them $99.99 for the premium subscription",
+  
+  "tools": [
+    {
+      "name": "get_payment_method",
+      "description": "Retrieve user's saved payment method",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "User ID (defaults to current user)"
+          }
+        }
+      }
+    },
+    {
+      "name": "charge_payment_method",
+      "description": "Charge a payment method",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "payment_method_id": {
+            "type": "string",
+            "description": "ID of the payment method to charge"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount to charge in dollars"
+          },
+          "description": {
+            "type": "string",
+            "description": "Charge description"
+          }
+        },
+        "required": ["payment_method_id", "amount"]
+      }
+    },
+    {
+      "name": "update_subscription",
+      "description": "Update user subscription tier",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "tier": { "type": "string" },
+          "payment_confirmed": { "type": "boolean" }
+        },
+        "required": ["tier"]
+      }
+    }
+  ],
+  
+  "correct_answer": [
+    {
+      "selected_function": "get_payment_method",
+      "arguments": {}
+    },
+    {
+      "selected_function": "charge_payment_method",
+      "arguments": {
+        "payment_method_id": "{{step1.payment_method_id}}",
+        "amount": 99.99,
+        "description": "premium subscription"
+      }
+    }
+  ],
+  
+  "explanation": "This demonstrates STATE MANAGEMENT across steps. Step 1: get_payment_method retrieves the payment method. Step 2: charge_payment_method uses the RESULT from step 1 (payment_method_id). The notation {{step1.payment_method_id}} represents using output from previous step. In production, agents manage this state automatically, but you need to understand the dependency chain. Note: We're NOT updating subscription here - user only asked to charge, not to activate.",
+  
+  "learning_points": [
+    "Multi-step workflows require passing state between function calls",
+    "Later steps depend on results from earlier steps",
+    "Use placeholder notation like {{step1.field}} to show dependencies",
+    "Order matters: must get payment method BEFORE charging it",
+    "Only do what the user asks: they didn't ask to update subscription, just charge"
+  ],
+  
+  "wrong_answers": [
+    {
+      "answer": [
+        {
+          "selected_function": "charge_payment_method",
+          "arguments": {
+            "payment_method_id": "saved_payment",
+            "amount": 99.99
+          }
+        }
+      ],
+      "why_wrong": "Can't charge without first getting the payment_method_id. You don't know what the ID is."
+    },
+    {
+      "answer": [
+        {
+          "selected_function": "get_payment_method",
+          "arguments": {}
+        },
+        {
+          "selected_function": "charge_payment_method",
+          "arguments": {
+            "amount": 99.99
+          }
+        }
+      ],
+      "why_wrong": "Missing required parameter payment_method_id in step 2. Must use result from step 1."
+    }
+  ],
+  
+  "hints": [
+    "This requires TWO steps: get then charge",
+    "First: get_payment_method to retrieve the payment method ID",
+    "Second: charge_payment_method using the ID from step 1",
+    "Show dependency with {{step1.payment_method_id}} notation",
+    "Don't update subscription - user didn't ask for that"
+  ],
+  
+  "tags": ["module-4", "state-management", "multi-step", "dependencies", "agentic-workflow"]
+}

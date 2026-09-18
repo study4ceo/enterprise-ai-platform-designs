@@ -1,0 +1,110 @@
+{
+  "id": "m2_001",
+  "module": 2,
+  "title": "Tool Disambiguation - Similar Functions",
+  "difficulty": "medium",
+  "category": "Tool Selection",
+  "timeLimit": 360,
+  "points": 20,
+  
+  "query": "Get the customer's order history for the last 3 months",
+  
+  "tools": [
+    {
+      "name": "get_customer",
+      "description": "Retrieve customer profile information",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "customer_id": { "type": "string" }
+        },
+        "required": ["customer_id"]
+      }
+    },
+    {
+      "name": "get_order",
+      "description": "Get a single order by ID",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "order_id": { "type": "string" }
+        },
+        "required": ["order_id"]
+      }
+    },
+    {
+      "name": "get_order_history",
+      "description": "Get all orders for a customer",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Customer ID (defaults to current user)"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date for history (optional)"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date for history (optional)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of orders to return"
+          }
+        }
+      }
+    },
+    {
+      "name": "search_orders",
+      "description": "Search orders by various criteria",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "filters": { "type": "object" }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "get_order_history",
+    "arguments": {
+      "start_date": "3 months ago"
+    }
+  },
+  
+  "explanation": "This is about DISAMBIGUATION - choosing the RIGHT tool among similar options. We have get_order (single order), get_order_history (multiple orders for a customer), and search_orders (keyword search). The query asks for 'order history for the last 3 months' which matches get_order_history. We can use 'customer_id' default (current user) and specify start_date. search_orders would work but is less specific.",
+  
+  "learning_points": [
+    "Read ALL function descriptions carefully before choosing",
+    "get_order (singular) vs get_order_history (plural) - naming matters",
+    "Choose the most specific function that matches the intent",
+    "Consider defaults: customer_id defaults to current user",
+    "More specific functions are usually better than generic search"
+  ],
+  
+  "wrong_answers": [
+    {
+      "answer": { "selected_function": "get_order", "arguments": {} },
+      "why_wrong": "get_order retrieves ONE order, not history of multiple orders"
+    },
+    {
+      "answer": { "selected_function": "search_orders", "arguments": { "query": "last 3 months" } },
+      "why_wrong": "search_orders is for keyword search, get_order_history is more specific for this use case"
+    }
+  ],
+  
+  "hints": [
+    "User wants HISTORY (multiple orders), not a single order",
+    "get_order_history is designed specifically for this",
+    "customer_id parameter defaults to current user",
+    "Provide start_date to filter by time range"
+  ],
+  
+  "tags": ["module-2", "disambiguation", "tool-selection", "naming-conventions"]
+}

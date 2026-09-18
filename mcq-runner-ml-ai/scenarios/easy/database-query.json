@@ -1,0 +1,76 @@
+{
+  "id": "easy_005",
+  "title": "Simple Database Query",
+  "difficulty": "easy",
+  "category": "Database",
+  "timeLimit": 240,
+  "points": 10,
+  
+  "query": "Show me all users in the database",
+  
+  "tools": [
+    {
+      "name": "query_database",
+      "description": "Execute a database query",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "table": {
+            "type": "string",
+            "description": "Table name to query"
+          },
+          "filters": {
+            "type": "object",
+            "description": "Optional filters (e.g., {\"status\": \"active\"})"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of records to return"
+          }
+        },
+        "required": ["table"]
+      }
+    },
+    {
+      "name": "create_user",
+      "description": "Create a new user",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "required": ["name", "email"]
+      }
+    },
+    {
+      "name": "delete_user",
+      "description": "Delete a user by ID",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string" }
+        },
+        "required": ["user_id"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "query_database",
+    "arguments": {
+      "table": "users"
+    }
+  },
+  
+  "explanation": "User wants to 'show' (read/query) all users, not create or delete. Use query_database with table='users'. The 'filters' and 'limit' parameters are optional, so we can omit them to get all users.",
+  
+  "hints": [
+    "User wants to READ data, not create or delete",
+    "The correct function is query_database",
+    "The table name should be 'users' (plural, based on query 'all users')",
+    "No filters needed - user wants ALL users"
+  ],
+  
+  "tags": ["database", "query", "read-operation", "easy"]
+}

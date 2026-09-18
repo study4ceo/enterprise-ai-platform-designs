@@ -1,0 +1,216 @@
+{
+  "id": "scenario_001",
+  "title": "Weather API - Basic Function Definition",
+  "difficulty": "easy",
+  "category": "basic",
+  "provider": "openai",
+  "timeLimit": 300,
+  "points": 10,
+  "description": "Create a function definition for a weather API that returns current weather information for a given location.",
+  
+  "scenario": {
+    "context": "You are building an AI assistant that needs to fetch weather information. The assistant should be able to call a weather API when users ask about the weather.",
+    "task": "Define a function called 'get_current_weather' that the LLM can call to retrieve weather data.",
+    "constraints": [
+      "Function must accept a location parameter (required)",
+      "Function must accept a unit parameter for temperature (optional: celsius or fahrenheit)",
+      "Use proper JSON Schema format",
+      "Include clear, concise descriptions"
+    ],
+    "example_usage": "User: 'What's the weather like in Boston?' → LLM should call: get_current_weather(location='Boston', unit='fahrenheit')"
+  },
+  
+  "requirements": [
+    {
+      "id": "req_1",
+      "description": "Function name is 'get_current_weather'",
+      "weight": 10,
+      "critical": true
+    },
+    {
+      "id": "req_2",
+      "description": "Has a clear, descriptive 'description' field",
+      "weight": 10,
+      "critical": true
+    },
+    {
+      "id": "req_3",
+      "description": "'location' parameter is required and type string",
+      "weight": 20,
+      "critical": true
+    },
+    {
+      "id": "req_4",
+      "description": "'unit' parameter is optional with enum values ['celsius', 'fahrenheit']",
+      "weight": 20,
+      "critical": false
+    },
+    {
+      "id": "req_5",
+      "description": "Both parameters have descriptive descriptions",
+      "weight": 15,
+      "critical": false
+    },
+    {
+      "id": "req_6",
+      "description": "Uses proper JSON Schema structure",
+      "weight": 25,
+      "critical": true
+    }
+  ],
+  
+  "hints": [
+    {
+      "level": 1,
+      "text": "Remember: OpenAI function calling requires 'name', 'description', and 'parameters' fields at the top level.",
+      "available_after": 60
+    },
+    {
+      "level": 2,
+      "text": "The 'parameters' field should have 'type': 'object' with 'properties' and 'required' arrays.",
+      "available_after": 180
+    },
+    {
+      "level": 3,
+      "text": "For optional parameters, don't include them in the 'required' array. Use 'enum' for the unit parameter to restrict values.",
+      "available_after": 240
+    }
+  ],
+  
+  "test_cases": [
+    {
+      "id": "test_1",
+      "name": "Function structure is valid",
+      "description": "Validates that the function definition has all required fields",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "has_field:name",
+          "has_field:description",
+          "has_field:parameters",
+          "parameters.type == 'object'",
+          "has_field:parameters.properties"
+        ]
+      },
+      "points": 20
+    },
+    {
+      "id": "test_2",
+      "name": "Location parameter is correct",
+      "description": "Validates location parameter definition",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.location exists",
+          "parameters.properties.location.type == 'string'",
+          "parameters.required includes 'location'",
+          "parameters.properties.location.description exists"
+        ]
+      },
+      "points": 30
+    },
+    {
+      "id": "test_3",
+      "name": "Unit parameter is optional with enum",
+      "description": "Validates unit parameter is optional with correct enum values",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.unit exists",
+          "parameters.properties.unit.type == 'string'",
+          "parameters.required does not include 'unit'",
+          "parameters.properties.unit.enum == ['celsius', 'fahrenheit']"
+        ]
+      },
+      "points": 30
+    },
+    {
+      "id": "test_4",
+      "name": "Descriptions are clear",
+      "description": "AI evaluation of description quality",
+      "validation": {
+        "type": "ai",
+        "rules": [
+          "description length > 20 characters",
+          "parameter descriptions are informative",
+          "no typos or grammatical errors"
+        ]
+      },
+      "points": 20
+    }
+  ],
+  
+  "solution": {
+    "openai": {
+      "name": "get_current_weather",
+      "description": "Get the current weather in a given location",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA"
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["celsius", "fahrenheit"],
+            "description": "The unit of temperature to return"
+          }
+        },
+        "required": ["location"]
+      }
+    },
+    "claude": {
+      "name": "get_current_weather",
+      "description": "Get the current weather in a given location",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA"
+          },
+          "unit": {
+            "type": "string",
+            "enum": ["celsius", "fahrenheit"],
+            "description": "The unit of temperature to return"
+          }
+        },
+        "required": ["location"]
+      }
+    },
+    "explanation": "This function definition follows the OpenAI function calling format. The 'location' parameter is required (included in the 'required' array) and accepts a string describing the location. The 'unit' parameter is optional (not in 'required' array) and uses an enum to restrict values to either 'celsius' or 'fahrenheit'. Both parameters include descriptive text to help the LLM understand when and how to use them."
+  },
+  
+  "common_mistakes": [
+    {
+      "mistake": "Forgetting to include 'location' in the required array",
+      "why_wrong": "The location parameter must be marked as required, otherwise the LLM might try to call the function without specifying a location",
+      "how_to_fix": "Add 'location' to the 'required' array under parameters"
+    },
+    {
+      "mistake": "Including 'unit' in the required array",
+      "why_wrong": "The unit parameter should be optional with a default behavior",
+      "how_to_fix": "Remove 'unit' from the required array"
+    },
+    {
+      "mistake": "Not using enum for the unit parameter",
+      "why_wrong": "Without enum constraint, the LLM might use invalid values like 'kelvin' or 'degrees'",
+      "how_to_fix": "Add an 'enum' field with allowed values: ['celsius', 'fahrenheit']"
+    },
+    {
+      "mistake": "Missing or vague descriptions",
+      "why_wrong": "The LLM needs clear descriptions to understand when and how to use the function",
+      "how_to_fix": "Add descriptive text explaining what each parameter represents, with examples"
+    }
+  ],
+  
+  "related_scenarios": ["scenario_002", "scenario_010"],
+  "tags": ["basic", "api", "json-schema", "openai", "required-params", "optional-params", "enum"],
+  "learning_objectives": [
+    "Understand basic OpenAI function calling structure",
+    "Learn how to mark parameters as required vs optional",
+    "Use enum to constrain parameter values",
+    "Write clear parameter descriptions"
+  ]
+}

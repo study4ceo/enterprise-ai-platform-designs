@@ -1,0 +1,48 @@
+{
+  "id": "m1_002",
+  "module": 1,
+  "title": "Enum Constraints and Valid Values",
+  "difficulty": "easy",
+  "category": "Schema Design",
+  "timeLimit": 240,
+  "points": 10,
+  
+  "query": "Set the log level to verbose mode",
+  
+  "tools": [
+    {
+      "name": "set_log_level",
+      "description": "Configure application log level",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": ["error", "warn", "info", "debug", "trace"],
+            "description": "Log level (from least to most verbose)"
+          }
+        },
+        "required": ["level"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "set_log_level",
+    "arguments": {
+      "level": "trace"
+    }
+  },
+  
+  "explanation": "The schema uses an ENUM constraint - only specific values are allowed. The user wants 'verbose mode' but 'verbose' is not in the enum. Reading the description and enum values: error < warn < info < debug < trace (least to most verbose). 'trace' is the most verbose level, matching user intent. Key lesson: map user's natural language to schema's constrained values.",
+  
+  "learning_points": [
+    "Enum constraints limit parameter to specific allowed values",
+    "Must map natural language query to exact enum value",
+    "'verbose' means most detailed, which is 'trace' here",
+    "Read enum descriptions to understand the semantic meaning",
+    "Never use values not in the enum, even if they seem logical"
+  ],
+  
+  "tags": ["module-1", "enum", "constraints", "schema-design", "validation"]
+}

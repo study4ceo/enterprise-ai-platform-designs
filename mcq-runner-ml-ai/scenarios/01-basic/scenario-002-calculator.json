@@ -1,0 +1,166 @@
+{
+  "id": "scenario_002",
+  "title": "Calculator Function - Multiple Parameters",
+  "difficulty": "easy",
+  "category": "basic",
+  "provider": "openai",
+  "timeLimit": 300,
+  "points": 10,
+  "description": "Create a function definition for a calculator that performs basic arithmetic operations on two numbers.",
+  
+  "scenario": {
+    "context": "You're building an AI assistant that can help users with math calculations. The assistant needs to perform basic arithmetic operations.",
+    "task": "Define a function called 'calculate' that accepts two numbers and an operation type.",
+    "constraints": [
+      "Function must accept two number parameters: 'a' and 'b' (both required)",
+      "Function must accept an 'operation' parameter with values: add, subtract, multiply, divide",
+      "All parameters are required",
+      "Use number type for numeric parameters"
+    ],
+    "example_usage": "User: 'What's 15 times 7?' → LLM should call: calculate(a=15, b=7, operation='multiply')"
+  },
+  
+  "requirements": [
+    {
+      "id": "req_1",
+      "description": "Function name is 'calculate'",
+      "weight": 10,
+      "critical": true
+    },
+    {
+      "id": "req_2",
+      "description": "Parameters 'a' and 'b' are type 'number' and required",
+      "weight": 30,
+      "critical": true
+    },
+    {
+      "id": "req_3",
+      "description": "Parameter 'operation' uses enum with values: ['add', 'subtract', 'multiply', 'divide']",
+      "weight": 30,
+      "critical": true
+    },
+    {
+      "id": "req_4",
+      "description": "All three parameters are in the required array",
+      "weight": 20,
+      "critical": true
+    },
+    {
+      "id": "req_5",
+      "description": "Clear descriptions for all parameters",
+      "weight": 10,
+      "critical": false
+    }
+  ],
+  
+  "hints": [
+    {
+      "level": 1,
+      "text": "Use 'number' type for numeric parameters, not 'integer' or 'float'.",
+      "available_after": 60
+    },
+    {
+      "level": 2,
+      "text": "The operation parameter should be a string with enum constraint listing the four basic operations.",
+      "available_after": 180
+    }
+  ],
+  
+  "test_cases": [
+    {
+      "id": "test_1",
+      "name": "Numeric parameters are correct",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.a.type == 'number'",
+          "parameters.properties.b.type == 'number'",
+          "parameters.required includes 'a'",
+          "parameters.required includes 'b'"
+        ]
+      },
+      "points": 40
+    },
+    {
+      "id": "test_2",
+      "name": "Operation parameter with correct enum",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.operation.type == 'string'",
+          "parameters.properties.operation.enum == ['add', 'subtract', 'multiply', 'divide']",
+          "parameters.required includes 'operation'"
+        ]
+      },
+      "points": 40
+    },
+    {
+      "id": "test_3",
+      "name": "All descriptions present",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "description exists and length > 10",
+          "parameters.properties.a.description exists",
+          "parameters.properties.b.description exists",
+          "parameters.properties.operation.description exists"
+        ]
+      },
+      "points": 20
+    }
+  ],
+  
+  "solution": {
+    "openai": {
+      "name": "calculate",
+      "description": "Perform a basic arithmetic operation on two numbers",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "number",
+            "description": "The first number"
+          },
+          "b": {
+            "type": "number",
+            "description": "The second number"
+          },
+          "operation": {
+            "type": "string",
+            "enum": ["add", "subtract", "multiply", "divide"],
+            "description": "The arithmetic operation to perform"
+          }
+        },
+        "required": ["a", "b", "operation"]
+      }
+    },
+    "explanation": "This calculator function requires three parameters. Both 'a' and 'b' are numbers (not integers, as they may be decimals). The 'operation' parameter uses an enum to ensure only valid operations are provided. All three are required since a calculation cannot be performed without knowing both numbers and the operation."
+  },
+  
+  "common_mistakes": [
+    {
+      "mistake": "Using 'integer' instead of 'number' type",
+      "why_wrong": "OpenAI function calling uses 'number' for numeric types, which includes both integers and decimals",
+      "how_to_fix": "Change type to 'number' for both a and b parameters"
+    },
+    {
+      "mistake": "Forgetting to make operation parameter required",
+      "why_wrong": "Without knowing the operation, the function cannot perform the calculation",
+      "how_to_fix": "Add 'operation' to the required array"
+    },
+    {
+      "mistake": "Using string values like 'addition' instead of 'add'",
+      "why_wrong": "Enum values should be concise and match common naming conventions",
+      "how_to_fix": "Use short, clear values: 'add', 'subtract', 'multiply', 'divide'"
+    }
+  ],
+  
+  "related_scenarios": ["scenario_001", "scenario_003"],
+  "tags": ["basic", "multiple-params", "enum", "number-type", "required-params"],
+  "learning_objectives": [
+    "Use 'number' type for numeric parameters",
+    "Define multiple required parameters",
+    "Use enum for constrained string values",
+    "Understand when all parameters should be required"
+  ]
+}

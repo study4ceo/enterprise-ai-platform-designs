@@ -1,0 +1,73 @@
+{
+  "id": "m2_002",
+  "module": 2,
+  "title": "Combining Results from Multiple Tools",
+  "difficulty": "medium",
+  "category": "Multi-Tool Orchestration",
+  "timeLimit": 420,
+  "points": 20,
+  
+  "query": "Get weather for New York and London, then compare the temperatures",
+  
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get current weather for a city",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "city": { "type": "string" }
+        },
+        "required": ["city"]
+      }
+    },
+    {
+      "name": "compare_values",
+      "description": "Compare two numeric values",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "value1": { "type": "number" },
+          "value2": { "type": "number" },
+          "metric": { "type": "string" }
+        },
+        "required": ["value1", "value2"]
+      }
+    }
+  ],
+  
+  "correct_answer": [
+    {
+      "selected_function": "get_weather",
+      "arguments": {
+        "city": "New York"
+      }
+    },
+    {
+      "selected_function": "get_weather",
+      "arguments": {
+        "city": "London"
+      }
+    },
+    {
+      "selected_function": "compare_values",
+      "arguments": {
+        "value1": "{{step1.temperature}}",
+        "value2": "{{step2.temperature}}",
+        "metric": "temperature"
+      }
+    }
+  ],
+  
+  "explanation": "This demonstrates RESULT COMBINING across multiple tool calls. Steps 1-2 gather data from both cities (can run in parallel). Step 3 combines results by comparing the temperature values. Note: {{stepN.field}} notation shows we're using outputs from previous steps. This pattern is common: gather data from multiple sources, then aggregate/compare/analyze.",
+  
+  "learning_points": [
+    "Complex queries often need multiple tool calls",
+    "First gather data, then process/compare it",
+    "Steps 1-2 are independent (can parallelize)",
+    "Step 3 depends on 1 and 2 (must run after)",
+    "Track which outputs feed into which inputs"
+  ],
+  
+  "tags": ["module-2", "multi-tool", "result-combining", "orchestration", "dependencies"]
+}

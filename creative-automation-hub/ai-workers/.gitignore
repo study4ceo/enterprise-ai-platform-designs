@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# Models
+models/
+*.pth
+*.pkl
+
+# Generated content
+generated/
+outputs/
+renders/
+
+# Logs
+*.log
+logs/
+
+# Temp
+temp/
+cache/

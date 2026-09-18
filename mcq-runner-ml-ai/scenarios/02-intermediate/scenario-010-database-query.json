@@ -1,0 +1,268 @@
+{
+  "id": "scenario_010",
+  "title": "Database Query - Nested Objects",
+  "difficulty": "medium",
+  "category": "nested",
+  "provider": "openai",
+  "timeLimit": 600,
+  "points": 20,
+  "description": "Create a function definition for querying a database with filters, sorting, and pagination options.",
+  
+  "scenario": {
+    "context": "You're building an AI agent that needs to query a user database. The agent should be able to filter results, sort them, and paginate through large datasets.",
+    "task": "Define a function called 'query_database' with table name, filters (nested object), sorting, and pagination.",
+    "constraints": [
+      "Required: table_name (string)",
+      "Optional: filters (object with field-value pairs)",
+      "Optional: sort_by (object with field and order)",
+      "Optional: pagination (object with page and page_size)",
+      "Use proper nested object structure"
+    ],
+    "example_usage": "User: 'Show me active users in California, sorted by registration date' → LLM calls: query_database(table_name='users', filters={status:'active', state:'CA'}, sort_by={field:'registration_date', order:'desc'})"
+  },
+  
+  "requirements": [
+    {
+      "id": "req_1",
+      "description": "Function name is 'query_database'",
+      "weight": 5,
+      "critical": true
+    },
+    {
+      "id": "req_2",
+      "description": "'table_name' parameter is required string",
+      "weight": 10,
+      "critical": true
+    },
+    {
+      "id": "req_3",
+      "description": "'filters' is optional object with proper structure",
+      "weight": 25,
+      "critical": true
+    },
+    {
+      "id": "req_4",
+      "description": "'sort_by' is optional object with 'field' and 'order' properties",
+      "weight": 25,
+      "critical": true
+    },
+    {
+      "id": "req_5",
+      "description": "'pagination' is optional object with 'page' and 'page_size' properties",
+      "weight": 25,
+      "critical": true
+    },
+    {
+      "id": "req_6",
+      "description": "All nested objects have proper type definitions",
+      "weight": 10,
+      "critical": true
+    }
+  ],
+  
+  "hints": [
+    {
+      "level": 1,
+      "text": "Nested objects also need their own 'type': 'object' and 'properties' definitions.",
+      "available_after": 120
+    },
+    {
+      "level": 2,
+      "text": "The 'sort_by.order' should use enum with values like 'asc' and 'desc'.",
+      "available_after": 300
+    },
+    {
+      "level": 3,
+      "text": "For 'filters', you can use additionalProperties to allow any key-value pairs, or define specific properties if you know the fields.",
+      "available_after": 450
+    }
+  ],
+  
+  "test_cases": [
+    {
+      "id": "test_1",
+      "name": "Basic structure valid",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "name == 'query_database'",
+          "parameters.required includes 'table_name'",
+          "parameters.properties.table_name.type == 'string'"
+        ]
+      },
+      "points": 15
+    },
+    {
+      "id": "test_2",
+      "name": "Filters object correctly defined",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.filters exists",
+          "parameters.properties.filters.type == 'object'",
+          "parameters.required does not include 'filters'"
+        ]
+      },
+      "points": 25
+    },
+    {
+      "id": "test_3",
+      "name": "Sort_by object with field and order",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.sort_by.type == 'object'",
+          "parameters.properties.sort_by.properties.field exists",
+          "parameters.properties.sort_by.properties.order exists",
+          "parameters.properties.sort_by.properties.order.enum includes 'asc'",
+          "parameters.properties.sort_by.properties.order.enum includes 'desc'"
+        ]
+      },
+      "points": 30
+    },
+    {
+      "id": "test_4",
+      "name": "Pagination object with page and page_size",
+      "validation": {
+        "type": "schema",
+        "rules": [
+          "parameters.properties.pagination.type == 'object'",
+          "parameters.properties.pagination.properties.page.type == 'number'",
+          "parameters.properties.pagination.properties.page_size.type == 'number'"
+        ]
+      },
+      "points": 30
+    }
+  ],
+  
+  "solution": {
+    "openai": {
+      "name": "query_database",
+      "description": "Query a database table with optional filters, sorting, and pagination",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "description": "The name of the database table to query"
+          },
+          "filters": {
+            "type": "object",
+            "description": "Key-value pairs to filter results",
+            "additionalProperties": true
+          },
+          "sort_by": {
+            "type": "object",
+            "description": "Sorting configuration",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "The field name to sort by"
+              },
+              "order": {
+                "type": "string",
+                "enum": ["asc", "desc"],
+                "description": "Sort order: ascending or descending"
+              }
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "description": "Pagination settings",
+            "properties": {
+              "page": {
+                "type": "number",
+                "description": "Page number (1-indexed)"
+              },
+              "page_size": {
+                "type": "number",
+                "description": "Number of results per page"
+              }
+            }
+          }
+        },
+        "required": ["table_name"]
+      }
+    },
+    "claude": {
+      "name": "query_database",
+      "description": "Query a database table with optional filters, sorting, and pagination",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "description": "The name of the database table to query"
+          },
+          "filters": {
+            "type": "object",
+            "description": "Key-value pairs to filter results"
+          },
+          "sort_by": {
+            "type": "object",
+            "description": "Sorting configuration",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "The field name to sort by"
+              },
+              "order": {
+                "type": "string",
+                "enum": ["asc", "desc"],
+                "description": "Sort order: ascending or descending"
+              }
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "description": "Pagination settings",
+            "properties": {
+              "page": {
+                "type": "number",
+                "description": "Page number (1-indexed)"
+              },
+              "page_size": {
+                "type": "number",
+                "description": "Number of results per page"
+              }
+            }
+          }
+        },
+        "required": ["table_name"]
+      }
+    },
+    "explanation": "This function demonstrates nested object parameters. The 'filters' object can contain any key-value pairs (using additionalProperties). The 'sort_by' object has a specific structure with 'field' and 'order' properties. The 'pagination' object contains numeric 'page' and 'page_size' fields. Only 'table_name' is required; all other parameters are optional to allow flexible querying."
+  },
+  
+  "common_mistakes": [
+    {
+      "mistake": "Not defining nested properties for objects",
+      "why_wrong": "Just marking something as 'type: object' without properties doesn't tell the LLM what fields to include",
+      "how_to_fix": "Add a 'properties' field within each object parameter defining the nested fields"
+    },
+    {
+      "mistake": "Making optional nested parameters required",
+      "why_wrong": "Filters, sorting, and pagination should be optional for flexibility",
+      "how_to_fix": "Don't include 'filters', 'sort_by', or 'pagination' in the required array"
+    },
+    {
+      "mistake": "Using 'integer' for page numbers instead of 'number'",
+      "why_wrong": "OpenAI function calling uses 'number' type for all numeric values",
+      "how_to_fix": "Use 'number' type for page and page_size"
+    },
+    {
+      "mistake": "Forgetting enum for sort order",
+      "why_wrong": "Without enum constraint, the LLM might use invalid values like 'ascending' or 'up'",
+      "how_to_fix": "Add enum: ['asc', 'desc'] to the order field"
+    }
+  ],
+  
+  "related_scenarios": ["scenario_011", "scenario_012"],
+  "tags": ["intermediate", "nested-objects", "optional-params", "database", "complex-structure"],
+  "learning_objectives": [
+    "Define nested object parameters",
+    "Use additionalProperties for flexible objects",
+    "Combine required and optional parameters",
+    "Structure complex multi-level parameters"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "scenario_template",
+  "title": "Scenario Title",
+  "difficulty": "easy|medium|hard",
+  "category": "basic|multi-param|nested|arrays|optional|multi-tool|error-handling|real-world",
+  "provider": "openai|claude|custom",
+  "timeLimit": 300,
+  "points": 10,
+  "description": "Detailed description of what needs to be accomplished",
+  "scenario": {
+    "context": "Background information and context for the scenario",
+    "task": "Specific task to complete",
+    "constraints": [
+      "Constraint 1",
+      "Constraint 2"
+    ],
+    "example_usage": "Example of how the function would be called"
+  },
+  "requirements": [
+    {
+      "id": "req_1",
+      "description": "Requirement description",
+      "weight": 10,
+      "critical": true
+    }
+  ],
+  "hints": [
+    {
+      "level": 1,
+      "text": "Gentle hint",
+      "available_after": 60
+    },
+    {
+      "level": 2,
+      "text": "More specific hint",
+      "available_after": 180
+    }
+  ],
+  "test_cases": [
+    {
+      "id": "test_1",
+      "name": "Test case name",
+      "input": {
+        "description": "What input is provided"
+      },
+      "expected": {
+        "description": "What should happen"
+      },
+      "validation": {
+        "type": "schema|execution|ai",
+        "rules": []
+      }
+    }
+  ],
+  "solution": {
+    "openai": {
+      "functions": []
+    },
+    "claude": {
+      "tools": []
+    },
+    "explanation": "Why this is the correct solution"
+  },
+  "common_mistakes": [
+    {
+      "mistake": "Description of common mistake",
+      "why_wrong": "Explanation",
+      "how_to_fix": "Correction guidance"
+    }
+  ],
+  "related_scenarios": ["scenario_002", "scenario_003"],
+  "tags": ["api", "database", "json-schema"],
+  "learning_objectives": [
+    "Objective 1",
+    "Objective 2"
+  ]
+}

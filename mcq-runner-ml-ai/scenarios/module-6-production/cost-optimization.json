@@ -1,0 +1,104 @@
+{
+  "id": "m6_003",
+  "module": 6,
+  "title": "Cost Management and Token Optimization",
+  "difficulty": "hard",
+  "category": "Cost Optimization",
+  "timeLimit": 480,
+  "points": 30,
+  
+  "query": "Your function-calling system sends 100k function schemas (50 functions × 2k tokens each) in every API call. At $3/1M input tokens, this costs $0.60 per query. How can you reduce cost by 90%?",
+  
+  "options": [
+    {
+      "id": "a",
+      "text": "Use prompt caching to reuse function schema tokens across queries"
+    },
+    {
+      "id": "b",
+      "text": "Implement dynamic tool selection: send only relevant functions per query"
+    },
+    {
+      "id": "c",
+      "text": "Compress function descriptions to use fewer tokens"
+    },
+    {
+      "id": "d",
+      "text": "All of the above in combination"
+    }
+  ],
+  
+  "correct_answer": "d",
+  
+  "explanation": "Cost optimization requires MULTIPLE STRATEGIES: (1) PROMPT CACHING: Anthropic/OpenAI cache static content (function schemas). First call pays full cost, subsequent calls: ~90% discount on cached tokens. (2) DYNAMIC TOOL SELECTION: Classify query → send only 5-10 relevant functions instead of all 50 (80-90% token reduction). (3) COMPRESS DESCRIPTIONS: Remove redundant words, use abbreviations (10-30% reduction). Combined: 95%+ cost reduction while maintaining functionality.",
+  
+  "learning_points": [
+    "Token costs scale with: # functions × description size × query volume",
+    "Prompt caching: huge savings for static content (function schemas)",
+    "Dynamic selection: only send functions relevant to query category",
+    "Compression: shorter descriptions, remove examples from schema",
+    "Monitor: track tokens per query, cost per query, cache hit rate"
+  ],
+  
+  "detailed_strategies": {
+    "prompt_caching": {
+      "how": "Mark function schemas as cacheable content",
+      "savings": "90% discount on cached tokens after first call",
+      "providers": ["Anthropic Claude", "OpenAI GPT-4"],
+      "best_for": "Static function definitions that rarely change",
+      "gotcha": "Cache invalidates on any schema change"
+    },
+    "dynamic_tool_selection": {
+      "how": "Classify query intent → send subset of functions",
+      "example": "Query about calendar → send only calendar functions (5), not all (50)",
+      "savings": "80-90% token reduction for function schemas",
+      "implementation": ["keyword matching", "embedding similarity", "small classifier model"],
+      "tradeoff": "Might miss relevant function if classification wrong"
+    },
+    "schema_compression": {
+      "techniques": [
+        "Remove verbose descriptions",
+        "Use abbreviations (desc → d, parameter → p)",
+        "Remove examples from schema",
+        "Merge similar functions",
+        "Use shorter parameter names"
+      ],
+      "savings": "10-30% token reduction",
+      "gotcha": "Don't sacrifice clarity - test selection accuracy"
+    },
+    "other_optimizations": [
+      "Use smaller models for function selection (GPT-4o-mini vs GPT-4)",
+      "Batch queries when possible",
+      "Implement semantic caching for repeated queries",
+      "Use structured output mode (reduces parsing tokens)"
+    ]
+  },
+  
+  "cost_calculation_example": {
+    "baseline": {
+      "functions": 50,
+      "tokens_per_function": 2000,
+      "total_function_tokens": 100000,
+      "queries_per_month": 100000,
+      "input_token_cost": "$3 per 1M tokens",
+      "monthly_cost": "$30,000"
+    },
+    "with_optimizations": {
+      "prompt_caching": "90% of function tokens cached → $0.06 per query",
+      "dynamic_selection": "Send 5 functions instead of 50 → $0.006 per query",
+      "compression": "30% shorter descriptions → $0.0042 per query",
+      "new_monthly_cost": "$420",
+      "savings": "98.6%"
+    }
+  },
+  
+  "monitoring_metrics": [
+    "Tokens per query (input + output)",
+    "Cost per query",
+    "Cache hit rate",
+    "Tool selection accuracy (are we sending the right functions?)",
+    "Latency impact of dynamic selection"
+  ],
+  
+  "tags": ["module-6", "cost-optimization", "tokens", "caching", "production", "scaling"]
+}

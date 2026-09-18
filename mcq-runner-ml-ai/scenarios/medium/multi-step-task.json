@@ -1,0 +1,85 @@
+{
+  "id": "medium_003",
+  "title": "Multiple Actions Required",
+  "difficulty": "medium",
+  "category": "Multi-Step",
+  "timeLimit": 420,
+  "points": 20,
+  
+  "query": "Get my profile information and then turn off all notifications",
+  
+  "tools": [
+    {
+      "name": "get_user_profile",
+      "description": "Retrieve user profile information",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "User ID (optional, defaults to current user)"
+          }
+        }
+      }
+    },
+    {
+      "name": "update_profile",
+      "description": "Update user profile",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "object",
+            "description": "Fields to update"
+          }
+        },
+        "required": ["fields"]
+      }
+    },
+    {
+      "name": "disable_notifications",
+      "description": "Disable notifications",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "notification_types": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Types of notifications to disable (optional, defaults to all)"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_notifications",
+      "description": "Get notification settings",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  
+  "correct_answer": [
+    {
+      "selected_function": "get_user_profile",
+      "arguments": {}
+    },
+    {
+      "selected_function": "disable_notifications",
+      "arguments": {}
+    }
+  ],
+  
+  "explanation": "User wants TWO actions: (1) Get profile info, and (2) Turn off notifications. This requires MULTIPLE function calls in an array. First get_user_profile (no user_id needed, defaults to current user), then disable_notifications (no types needed, defaults to all). Note the array format with square brackets.",
+  
+  "hints": [
+    "User said 'and then' - this means TWO separate actions",
+    "Need to return an ARRAY of function calls: [{...}, {...}]",
+    "First: get_user_profile with empty arguments {}",
+    "Second: disable_notifications with empty arguments {}",
+    "Order matters! Profile first, then notifications"
+  ],
+  
+  "tags": ["multi-step", "array-format", "medium", "sequential-actions"]
+}

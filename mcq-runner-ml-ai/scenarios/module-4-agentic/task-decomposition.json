@@ -1,0 +1,226 @@
+{
+  "id": "m4_003",
+  "module": 4,
+  "title": "Task Decomposition - Complex Goals",
+  "difficulty": "hard",
+  "category": "Agentic Workflows",
+  "timeLimit": 600,
+  "points": 40,
+  
+  "query": "Plan a team offsite: find a venue in Austin for 20 people on March 15th, book it, send calendar invites to the engineering team, and order catering",
+  
+  "tools": [
+    {
+      "name": "search_venues",
+      "description": "Search for event venues",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": { "type": "string" },
+          "capacity": { "type": "integer" },
+          "date": { "type": "string" }
+        },
+        "required": ["location", "date"]
+      }
+    },
+    {
+      "name": "book_venue",
+      "description": "Book a venue",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "venue_id": { "type": "string" },
+          "date": { "type": "string" },
+          "duration_hours": { "type": "integer" }
+        },
+        "required": ["venue_id", "date"]
+      }
+    },
+    {
+      "name": "get_team_members",
+      "description": "Get members of a team",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "team_name": { "type": "string" }
+        },
+        "required": ["team_name"]
+      }
+    },
+    {
+      "name": "create_calendar_event",
+      "description": "Create calendar event",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "date": { "type": "string" },
+          "location": { "type": "string" },
+          "attendees": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["title", "date", "attendees"]
+      }
+    },
+    {
+      "name": "order_catering",
+      "description": "Order catering for an event",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "venue_address": { "type": "string" },
+          "date": { "type": "string" },
+          "headcount": { "type": "integer" }
+        },
+        "required": ["venue_address", "date", "headcount"]
+      }
+    }
+  ],
+  
+  "correct_answer": [
+    {
+      "step": 1,
+      "selected_function": "search_venues",
+      "arguments": {
+        "location": "Austin",
+        "capacity": 20,
+        "date": "2024-03-15"
+      },
+      "rationale": "First, find available venues that meet requirements"
+    },
+    {
+      "step": 2,
+      "selected_function": "book_venue",
+      "arguments": {
+        "venue_id": "{{step1.venues[0].id}}",
+        "date": "2024-03-15",
+        "duration_hours": 8
+      },
+      "rationale": "Book the selected venue (assuming user selects first option)"
+    },
+    {
+      "step": 3,
+      "selected_function": "get_team_members",
+      "arguments": {
+        "team_name": "engineering"
+      },
+      "rationale": "Get list of engineering team members for invites"
+    },
+    {
+      "step": 4,
+      "selected_function": "create_calendar_event",
+      "arguments": {
+        "title": "Team Offsite",
+        "date": "2024-03-15",
+        "location": "{{step2.venue_address}}",
+        "attendees": "{{step3.members}}"
+      },
+      "rationale": "Create calendar event with venue details and team members"
+    },
+    {
+      "step": 5,
+      "selected_function": "order_catering",
+      "arguments": {
+        "venue_address": "{{step2.venue_address}}",
+        "date": "2024-03-15",
+        "headcount": 20
+      },
+      "rationale": "Finally, order catering for the confirmed event"
+    }
+  ],
+  
+  "explanation": "This tests TASK DECOMPOSITION - breaking complex goals into sequential steps. The query has 4 sub-goals: (1) find venue, (2) book it, (3) send invites, (4) order catering. An agentic system must: identify dependencies (can't invite until venue booked), determine optimal sequence, track state across steps, handle failures in any step. Key insight: Step N depends on results from step N-1. This is realistic: production agents need to orchestrate 5-10 step workflows.",
+  
+  "learning_points": [
+    "Complex goals decompose into sequential sub-tasks",
+    "Identify dependencies: some tasks must complete before others start",
+    "Maintain state: later steps use results from earlier steps",
+    "Each step should have clear success criteria",
+    "If any step fails, entire workflow may need to rollback or restart",
+    "Real systems need: retry logic, partial completion handling, progress tracking"
+  ],
+  
+  "dependency_graph": {
+    "search_venues": {
+      "depends_on": [],
+      "required_for": ["book_venue"]
+    },
+    "book_venue": {
+      "depends_on": ["search_venues"],
+      "required_for": ["create_calendar_event", "order_catering"],
+      "why": "Need venue address and confirmation before inviting or catering"
+    },
+    "get_team_members": {
+      "depends_on": [],
+      "required_for": ["create_calendar_event"],
+      "can_parallelize_with": ["search_venues", "book_venue"]
+    },
+    "create_calendar_event": {
+      "depends_on": ["book_venue", "get_team_members"],
+      "required_for": []
+    },
+    "order_catering": {
+      "depends_on": ["book_venue"],
+      "required_for": [],
+      "can_parallelize_with": ["create_calendar_event"]
+    }
+  },
+  
+  "optimal_execution_plan": [
+    "PARALLEL: search_venues + get_team_members (independent)",
+    "SEQUENTIAL: book_venue (depends on search results)",
+    "PARALLEL: create_calendar_event + order_catering (both depend on venue, independent of each other)"
+  ],
+  
+  "failure_scenarios": [
+    {
+      "failure_point": "search_venues returns no results",
+      "recovery": "Expand search (nearby cities, different dates, lower capacity requirement)"
+    },
+    {
+      "failure_point": "book_venue fails (already booked)",
+      "recovery": "Try next venue from search results, or re-search with adjusted criteria"
+    },
+    {
+      "failure_point": "get_team_members returns empty",
+      "recovery": "Ask user to specify team members manually or check team name spelling"
+    },
+    {
+      "failure_point": "order_catering fails (not available)",
+      "recovery": "Try alternative catering service or inform user to handle separately"
+    }
+  ],
+  
+  "production_workflow_engine": {
+    "features_needed": [
+      "State management: track what's completed, what's pending",
+      "Dependency resolution: don't start step until dependencies done",
+      "Parallel execution: run independent steps concurrently",
+      "Error handling: retry, rollback, or compensation",
+      "Progress tracking: show user what's happening",
+      "Idempotency: safe to retry failed steps",
+      "Timeouts: don't wait forever for any step",
+      "Audit log: record all actions and decisions"
+    ]
+  },
+  
+  "common_mistakes": [
+    {
+      "mistake": "Execute steps sequentially when they could be parallel",
+      "impact": "Unnecessary latency, poor user experience"
+    },
+    {
+      "mistake": "Start dependent step before prerequisite completes",
+      "impact": "Missing required data, runtime errors"
+    },
+    {
+      "mistake": "No rollback on failure",
+      "impact": "Partial completion (venue booked but invites not sent)"
+    },
+    {
+      "mistake": "Assume every step succeeds",
+      "impact": "Silent failures, confused users"
+    }
+  ],
+  
+  "tags": ["module-4", "task-decomposition", "workflow-orchestration", "dependencies", "agentic", "complex-goals"]
+}

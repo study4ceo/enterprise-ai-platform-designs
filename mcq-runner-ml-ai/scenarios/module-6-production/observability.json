@@ -1,0 +1,103 @@
+{
+  "id": "m6_002",
+  "module": 6,
+  "title": "Observability for Function Calling",
+  "difficulty": "hard",
+  "category": "Observability",
+  "timeLimit": 420,
+  "points": 30,
+  
+  "query": "Your function-calling agent is in production. Users report it 'sometimes doesn't work'. What's the MOST important metric to track first?",
+  
+  "options": [
+    {
+      "id": "a",
+      "text": "Average response latency across all queries"
+    },
+    {
+      "id": "b",
+      "text": "Function call success rate broken down by function name"
+    },
+    {
+      "id": "c",
+      "text": "Total number of tokens used per day"
+    },
+    {
+      "id": "d",
+      "text": "LLM model version and provider uptime"
+    }
+  ],
+  
+  "correct_answer": "b",
+  
+  "explanation": "For debugging 'sometimes doesn't work', you need FUNCTION-LEVEL SUCCESS RATES. This reveals: (1) Which specific functions are failing, (2) Whether it's selection errors vs execution errors, (3) Patterns in failures. Latency (A) doesn't indicate correctness. Token usage (C) is cost, not reliability. Model uptime (D) would affect all queries, not 'sometimes'. Key insight: aggregate metrics hide failures. You need per-function breakdown: calls, successes, parameter validation failures, execution errors, and latency percentiles.",
+  
+  "learning_points": [
+    "Aggregate metrics hide important failures in production",
+    "Track success rate per function, not just overall",
+    "Distinguish: selection errors (wrong function) vs execution errors (right function, bad params)",
+    "Use structured logging: query, selected_function, parameters, result, error",
+    "Alert on: sudden drops in success rate for any function",
+    "Dashboard must show: per-function metrics, error types, example failures"
+  ],
+  
+  "essential_metrics": {
+    "function_level": [
+      "Calls per function (identify unused/overused)",
+      "Success rate per function",
+      "Parameter validation failure rate",
+      "Execution error rate",
+      "Latency percentiles (p50, p95, p99) per function"
+    ],
+    "query_level": [
+      "No function selected when one was needed",
+      "Wrong function selected (if you can detect)",
+      "User retry rate (same query repeated)",
+      "User feedback (thumbs up/down)"
+    ],
+    "system_level": [
+      "Overall success rate",
+      "Average latency",
+      "Token usage and cost",
+      "LLM provider errors (rate limiting, timeouts)",
+      "Cache hit rate (if using prompt caching)"
+    ]
+  },
+  
+  "debugging_workflow": [
+    "1. Check per-function success rates → identify failing functions",
+    "2. Sample failed calls for those functions → identify patterns",
+    "3. Check parameter validation errors → schema issues?",
+    "4. Check execution errors → function implementation issues?",
+    "5. Review queries that selected wrong function → prompt engineering issues?",
+    "6. Compare to golden dataset → regression detection"
+  ],
+  
+  "structured_logging_example": {
+    "timestamp": "2024-01-15T10:30:00Z",
+    "query": "Send email to john@company.com",
+    "selected_function": "send_email",
+    "parameters": {
+      "recipient": "john@company.com",
+      "subject": null,
+      "body": null
+    },
+    "parameter_validation": "FAILED - missing required field: body",
+    "execution_status": "NOT_EXECUTED",
+    "error_type": "VALIDATION_ERROR",
+    "latency_ms": 450,
+    "tokens_used": 320,
+    "user_id": "user_123",
+    "session_id": "session_456"
+  },
+  
+  "alerts_to_configure": [
+    "Function success rate drops below 95% for any function",
+    "New error type appears (signals regression)",
+    "Latency p95 exceeds 2x baseline",
+    "No function selected rate increases",
+    "Token usage spikes (possible prompt injection or loop)"
+  ],
+  
+  "tags": ["module-6", "observability", "monitoring", "debugging", "production", "metrics"]
+}

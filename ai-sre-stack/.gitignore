@@ -1,52 +1,31 @@
-# Environment files with secrets
-.env
-.env.local
-.env.localstack
-.env.test
-.env.production
-.env.*.local
-
-# API Keys and Secrets
-*.key
-*.pem
-secrets/
-credentials/
-
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
+.env
+.venv
 venv/
-env/
-ENV/
+*.egg-info/
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
 
 # Logs
 *.log
 logs/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Secrets
+secrets/
+credentials/
+.env.local
+*.key
+*.pem
 
-# Docker
-docker-compose.override.yml
+# Monitoring data
+prometheus_data/
+grafana_data/
+
+# Tests
+.pytest_cache/
+.coverage

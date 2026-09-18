@@ -1,0 +1,144 @@
+{
+  "id": "medium_001",
+  "title": "Email with Parameter Extraction",
+  "difficulty": "medium",
+  "category": "Email API",
+  "timeLimit": 300,
+  "points": 20,
+  
+  "query": "Send a quick message to john@company.com letting him know the meeting has been rescheduled to 3pm tomorrow",
+  
+  "tools": [
+    {
+      "name": "send_email",
+      "description": "Send a detailed email with subject and body",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient email address"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject line"
+          },
+          "body": {
+            "type": "string",
+            "description": "Email body content"
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "CC recipients (optional)"
+          }
+        },
+        "required": ["to", "subject", "body"]
+      }
+    },
+    {
+      "name": "send_quick_message",
+      "description": "Send a quick message without subject line",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient email address"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message content"
+          }
+        },
+        "required": ["to", "message"]
+      }
+    },
+    {
+      "name": "create_calendar_event",
+      "description": "Create a calendar event",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Event title"
+          },
+          "start_time": {
+            "type": "string",
+            "description": "Start time"
+          },
+          "attendees": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of attendee emails"
+          }
+        },
+        "required": ["title", "start_time"]
+      }
+    },
+    {
+      "name": "create_draft",
+      "description": "Create an email draft",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient email address"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject"
+          },
+          "body": {
+            "type": "string",
+            "description": "Email body"
+          }
+        },
+        "required": ["to"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "send_quick_message",
+    "arguments": {
+      "to": "john@company.com",
+      "message": "The meeting has been rescheduled to 3pm tomorrow"
+    }
+  },
+  
+  "explanation": "The user wants to send a 'quick message' which suggests send_quick_message is more appropriate than send_email (which requires a subject line). The key is recognizing: (1) 'quick message' suggests simpler function, (2) recipient is 'john@company.com', (3) message content should capture the essential information about the meeting being rescheduled to 3pm tomorrow. We don't create a calendar event because the user only asked to send a message, not create the actual event.",
+  
+  "hints": [
+    "User said 'quick message' - what function matches that?",
+    "send_quick_message doesn't need a subject, send_email does",
+    "Extract the email address and the message content",
+    "The message should mention the rescheduling to 3pm tomorrow"
+  ],
+  
+  "common_mistakes": [
+    {
+      "wrong": "Using send_email",
+      "reason": "send_email requires a subject line, but user wants a 'quick message' suggesting informal communication",
+      "fix": "Use send_quick_message for simpler messages"
+    },
+    {
+      "wrong": "Using create_calendar_event",
+      "reason": "User only asked to send a message, not create the event itself",
+      "fix": "Only call the function that matches what user explicitly requested"
+    },
+    {
+      "wrong": "Forgetting to extract the actual message",
+      "reason": "The message parameter needs content about the rescheduling",
+      "fix": "Include: 'The meeting has been rescheduled to 3pm tomorrow'"
+    }
+  ],
+  
+  "tags": ["medium", "email", "parameter-extraction", "function-selection"]
+}

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# Models
+models/
+*.pth
+*.pkl
+checkpoints/
+
+# Data
+data/
+datasets/
+
+# Logs
+*.log
+logs/
+wandb/
+tensorboard/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Training artifacts
+runs/
+experiments/

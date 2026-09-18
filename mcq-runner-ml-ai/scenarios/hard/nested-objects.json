@@ -1,0 +1,109 @@
+{
+  "id": "hard_001",
+  "title": "Nested Object Parameters",
+  "difficulty": "hard",
+  "category": "Complex Data Structures",
+  "timeLimit": 480,
+  "points": 30,
+  
+  "query": "Schedule a recurring meeting every Monday at 10am called 'Team Standup' in the Conference Room A, and invite alice@company.com and bob@company.com",
+  
+  "tools": [
+    {
+      "name": "create_recurring_event",
+      "description": "Create a recurring calendar event",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Event title"
+          },
+          "recurrence": {
+            "type": "object",
+            "description": "Recurrence pattern",
+            "properties": {
+              "frequency": {
+                "type": "string",
+                "enum": ["daily", "weekly", "monthly"],
+                "description": "How often event repeats"
+              },
+              "day_of_week": {
+                "type": "string",
+                "enum": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+                "description": "Day of week (for weekly recurrence)"
+              },
+              "time": {
+                "type": "string",
+                "description": "Time in format 'HH:MM' (24-hour)"
+              }
+            },
+            "required": ["frequency", "time"]
+          },
+          "location": {
+            "type": "string",
+            "description": "Event location (optional)"
+          },
+          "attendees": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of attendee emails"
+          }
+        },
+        "required": ["title", "recurrence"]
+      }
+    },
+    {
+      "name": "create_event",
+      "description": "Create a one-time calendar event",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "time": { "type": "string" },
+          "attendees": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["title", "time"]
+      }
+    },
+    {
+      "name": "invite_users",
+      "description": "Send calendar invites",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "event_id": { "type": "string" },
+          "emails": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["event_id", "emails"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "create_recurring_event",
+    "arguments": {
+      "title": "Team Standup",
+      "recurrence": {
+        "frequency": "weekly",
+        "day_of_week": "monday",
+        "time": "10:00"
+      },
+      "location": "Conference Room A",
+      "attendees": ["alice@company.com", "bob@company.com"]
+    }
+  },
+  
+  "explanation": "This is a RECURRING event (every Monday), not one-time, so use create_recurring_event. The 'recurrence' parameter is a NESTED OBJECT with its own properties. Note: (1) frequency='weekly' (not daily/monthly), (2) day_of_week='monday' (lowercase), (3) time='10:00' in 24-hour format, (4) attendees is an array of email strings, (5) location is optional but provided in query.",
+  
+  "hints": [
+    "User said 'recurring' and 'every Monday' - not a one-time event",
+    "The correct function is create_recurring_event",
+    "recurrence is a NESTED OBJECT: { frequency: ..., day_of_week: ..., time: ... }",
+    "Convert '10am' to 24-hour format: '10:00'",
+    "day_of_week should be lowercase: 'monday'",
+    "attendees is an array: ['email1', 'email2']"
+  ],
+  
+  "tags": ["hard", "nested-objects", "recurring-events", "complex-structures", "time-conversion"]
+}

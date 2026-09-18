@@ -1,0 +1,66 @@
+{
+  "id": "m1_001",
+  "module": 1,
+  "title": "Understanding Required vs Optional Fields",
+  "difficulty": "easy",
+  "category": "Schema Design",
+  "timeLimit": 240,
+  "points": 10,
+  
+  "query": "Send a notification to john@company.com about the meeting",
+  
+  "tools": [
+    {
+      "name": "send_notification",
+      "description": "Send a notification to a user",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "recipient": {
+            "type": "string",
+            "description": "Email address of the recipient"
+          },
+          "message": {
+            "type": "string",
+            "description": "Notification message content"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Priority level (default: medium)"
+          },
+          "send_email": {
+            "type": "boolean",
+            "description": "Also send email copy (default: false)"
+          }
+        },
+        "required": ["recipient", "message"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "send_notification",
+    "arguments": {
+      "recipient": "john@company.com",
+      "message": "about the meeting"
+    }
+  },
+  
+  "explanation": "The schema shows only 'recipient' and 'message' are REQUIRED (in the 'required' array). The fields 'priority' and 'send_email' are OPTIONAL with default values, so we don't need to include them. Only provide what's required + what's explicitly mentioned in the query.",
+  
+  "learning_points": [
+    "The 'required' array in a schema tells you which fields MUST be provided",
+    "Optional fields can be omitted - they'll use their default values",
+    "Don't add fields just because they exist - only add what's needed",
+    "Default values (shown in descriptions) are applied automatically"
+  ],
+  
+  "hints": [
+    "Check the 'required' array: ['recipient', 'message']",
+    "priority and send_email are optional (not in required array)",
+    "Only provide required fields unless the query specifically mentions optional ones"
+  ],
+  
+  "tags": ["module-1", "schema-design", "required-fields", "optional-fields"]
+}

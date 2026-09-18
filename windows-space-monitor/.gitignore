@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# Database
+*.db
+*.sqlite
+scan_results.db
+
+# Logs
+*.log
+logs/
+scan_history/
+
+# Config
+config.local.json
+
+# Reports
+reports/
+*.csv
+*.xlsx

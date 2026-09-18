@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+*.egg-info/
+
+# Models
+models/
+*.pth
+*.pkl
+*.h5
+*.onnx
+
+# Data
+data/
+datasets/
+
+# Logs
+*.log
+logs/
+wandb/
+
+# Database
+*.db
+*.sqlite
+
+# Secrets
+.env.local
+credentials/

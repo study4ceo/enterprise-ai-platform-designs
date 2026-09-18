@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+
+# Training artifacts
+checkpoints/
+models/
+*.pth
+*.pkl
+*.safetensors
+wandb/
+logs/
+
+# Data
+data/
+datasets/
+*.parquet
+
+# Logs
+*.log
+tensorboard/

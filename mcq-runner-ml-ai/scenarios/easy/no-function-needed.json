@@ -1,0 +1,98 @@
+{
+  "id": "easy_003",
+  "title": "No Function Call Needed",
+  "difficulty": "easy",
+  "category": "Decision Making",
+  "timeLimit": 180,
+  "points": 10,
+  
+  "query": "Thanks so much for your help! This tool is really useful.",
+  
+  "tools": [
+    {
+      "name": "get_weather",
+      "description": "Get current weather for a location",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name or location"
+          }
+        },
+        "required": ["location"]
+      }
+    },
+    {
+      "name": "send_email",
+      "description": "Send an email",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "string",
+            "description": "Recipient email address"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject"
+          },
+          "body": {
+            "type": "string",
+            "description": "Email body"
+          }
+        },
+        "required": ["to", "subject", "body"]
+      }
+    },
+    {
+      "name": "create_task",
+      "description": "Create a new task",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Task title"
+          },
+          "due_date": {
+            "type": "string",
+            "description": "Due date (YYYY-MM-DD format)"
+          }
+        },
+        "required": ["title"]
+      }
+    },
+    {
+      "name": "set_reminder",
+      "description": "Set a reminder",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Reminder message"
+          },
+          "time": {
+            "type": "string",
+            "description": "Time for reminder"
+          }
+        },
+        "required": ["message", "time"]
+      }
+    }
+  ],
+  
+  "correct_answer": "N/A",
+  
+  "explanation": "The user is simply expressing gratitude and providing positive feedback. This is NOT a request for any action - it's a social interaction. No function call is needed. The correct response is 'N/A'. This tests your ability to distinguish between requests that need function calls and those that don't.",
+  
+  "hints": [
+    "Is the user ASKING for something to be done?",
+    "Or are they just making a statement/comment?",
+    "Gratitude and compliments don't require function calls",
+    "When no action is needed, respond with 'N/A'"
+  ],
+  
+  "tags": ["n/a", "decision-making", "easy", "no-action-needed"]
+}

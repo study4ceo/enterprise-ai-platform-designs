@@ -1,0 +1,134 @@
+{
+  "id": "m5_003",
+  "module": 5,
+  "title": "Input Sanitization and SQL Injection",
+  "difficulty": "hard",
+  "category": "Security",
+  "timeLimit": 420,
+  "points": 30,
+  
+  "query": "Search for users with name: Robert'; DROP TABLE users; --",
+  
+  "tools": [
+    {
+      "name": "search_users",
+      "description": "Search users in database",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "User name to search for"
+          }
+        },
+        "required": ["name"]
+      }
+    }
+  ],
+  
+  "correct_answer": {
+    "selected_function": "search_users",
+    "arguments": {
+      "name": "Robert'; DROP TABLE users; --"
+    }
+  },
+  
+  "explanation": "COUNTERINTUITIVE BUT CORRECT: You should pass the ENTIRE input to the function, including the SQL injection payload. WHY? Input sanitization must happen at the EXECUTION layer, not in the LLM layer. The LLM's job is to understand intent and extract parameters. The function implementation is responsible for: (1) Using parameterized queries, (2) Escaping special characters, (3) Validating input format. If you try to 'clean' input at the LLM layer, you risk: breaking legitimate queries, inconsistent sanitization, false sense of security. PRINCIPLE: Defense in depth - sanitize at execution, but pass complete user input.",
+  
+  "learning_points": [
+    "LLM layer extracts parameters as-is from user query",
+    "Function implementation layer handles sanitization",
+    "Use parameterized queries (prepared statements) to prevent SQL injection",
+    "Never construct SQL by concatenating user input",
+    "Validate input format but don't try to 'clean' malicious payloads in LLM",
+    "Defense in depth: multiple layers of protection"
+  ],
+  
+  "secure_function_implementation": {
+    "vulnerable_code": `
+def search_users(name):
+    # VULNERABLE - String concatenation
+    query = f"SELECT * FROM users WHERE name LIKE '%{name}%'"
+    return db.execute(query)
+`,
+    "secure_code": `
+def search_users(name):
+    # SECURE - Parameterized query
+    query = "SELECT * FROM users WHERE name LIKE %s"
+    return db.execute(query, ('%' + name + '%',))
+    
+    # Additional validation
+    if len(name) > 100:
+        raise ValueError("Name too long")
+    if not is_valid_name_format(name):
+        raise ValueError("Invalid name format")
+`
+  },
+  
+  "why_not_sanitize_in_llm": [
+    "LLM might incorrectly identify legitimate special characters as attacks",
+    "Creates false sense of security - execution layer still needs protection",
+    "Inconsistent: LLM might sanitize differently each time",
+    "Some queries legitimately need special characters",
+    "Example: searching for \"O'Brien\" contains a single quote"
+  ],
+  
+  "defense_layers": [
+    {
+      "layer": "LLM Layer",
+      "responsibility": "Extract parameters as user provided them",
+      "not_responsible_for": "Deciding if input is malicious"
+    },
+    {
+      "layer": "Validation Layer",
+      "responsibility": "Check format, length, allowed characters",
+      "example": "name must be 1-100 chars, alphanumeric + spaces"
+    },
+    {
+      "layer": "Execution Layer",
+      "responsibility": "Use parameterized queries, escape output",
+      "example": "Prepared statements, ORM query builders"
+    },
+    {
+      "layer": "Database Layer",
+      "responsibility": "Least-privilege permissions",
+      "example": "App user can't DROP tables"
+    }
+  ],
+  
+  "other_injection_types": [
+    {
+      "type": "Command Injection",
+      "example": "filename: report.pdf; rm -rf /",
+      "defense": "Whitelist allowed characters, use safe APIs"
+    },
+    {
+      "type": "LDAP Injection",
+      "example": "username: *)(uid=*))(|(uid=*",
+      "defense": "Escape LDAP special characters"
+    },
+    {
+      "type": "NoSQL Injection",
+      "example": "query: {$gt: ''}",
+      "defense": "Use query builders, validate types"
+    },
+    {
+      "type": "Path Traversal",
+      "example": "file: ../../etc/passwd",
+      "defense": "Canonicalize paths, check boundaries"
+    }
+  ],
+  
+  "secure_coding_practices": [
+    "Use parameterized queries (prepared statements) ALWAYS",
+    "Apply input validation at execution layer",
+    "Use allowlists rather than denylists",
+    "Implement rate limiting per function",
+    "Log suspicious inputs for security monitoring",
+    "Use ORMs that handle escaping automatically",
+    "Principle of least privilege for database connections",
+    "Never trust user input, even after 'sanitization'"
+  ],
+  
+  "tags": ["module-5", "security", "sql-injection", "input-sanitization", "defense-in-depth"]
+}

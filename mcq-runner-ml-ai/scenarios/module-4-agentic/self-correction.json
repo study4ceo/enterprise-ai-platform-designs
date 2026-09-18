@@ -1,0 +1,157 @@
+{
+  "id": "m4_002",
+  "module": 4,
+  "title": "Self-Correction and Error Recovery",
+  "difficulty": "hard",
+  "category": "Agentic Workflows",
+  "timeLimit": 480,
+  "points": 30,
+  
+  "query": "Book a flight from San Francisco to New York on December 25th",
+  
+  "context": "After calling search_flights, the API returns: 'No flights available on December 25th. Try nearby dates.'",
+  
+  "tools": [
+    {
+      "name": "search_flights",
+      "description": "Search for available flights",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "origin": { "type": "string" },
+          "destination": { "type": "string" },
+          "date": { "type": "string" }
+        },
+        "required": ["origin", "destination", "date"]
+      }
+    },
+    {
+      "name": "book_flight",
+      "description": "Book a specific flight",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "flight_id": { "type": "string" }
+        },
+        "required": ["flight_id"]
+      }
+    },
+    {
+      "name": "get_alternative_dates",
+      "description": "Get flights on nearby dates",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "origin": { "type": "string" },
+          "destination": { "type": "string" },
+          "preferred_date": { "type": "string" },
+          "days_range": { "type": "integer", "description": "Check +/- this many days" }
+        },
+        "required": ["origin", "destination", "preferred_date"]
+      }
+    }
+  ],
+  
+  "initial_call": {
+    "selected_function": "search_flights",
+    "arguments": {
+      "origin": "San Francisco",
+      "destination": "New York",
+      "date": "2024-12-25"
+    }
+  },
+  
+  "initial_result": {
+    "error": "No flights available on December 25th. Try nearby dates."
+  },
+  
+  "correct_answer": {
+    "selected_function": "get_alternative_dates",
+    "arguments": {
+      "origin": "San Francisco",
+      "destination": "New York",
+      "preferred_date": "2024-12-25",
+      "days_range": 3
+    }
+  },
+  
+  "explanation": "This tests SELF-CORRECTION: the ability to recover from failures. The initial search failed, and the error message suggests trying nearby dates. An agentic system should: (1) Parse the error message, (2) Identify recovery strategy (try nearby dates), (3) Use get_alternative_dates to find alternatives. This demonstrates: error interpretation, strategy adjustment, and goal persistence. Key: Don't just fail and report to user - try reasonable recovery actions first.",
+  
+  "learning_points": [
+    "Agentic systems should attempt recovery before failing to user",
+    "Parse error messages for recovery hints",
+    "Have a toolkit for common failure modes",
+    "Maintain original goal while adjusting strategy",
+    "Self-correction pattern: Try A → Failed → Analyze error → Try alternative approach",
+    "Don't retry same failing call repeatedly (infinite loops)"
+  ],
+  
+  "self_correction_patterns": [
+    {
+      "failure": "Resource not found",
+      "recovery": "Search for similar resources or suggestions"
+    },
+    {
+      "failure": "Invalid parameter value",
+      "recovery": "Get valid values from schema or query user"
+    },
+    {
+      "failure": "Rate limit exceeded",
+      "recovery": "Wait and retry with exponential backoff"
+    },
+    {
+      "failure": "Missing required information",
+      "recovery": "Ask user for clarification with specific question"
+    },
+    {
+      "failure": "Conflicting constraints",
+      "recovery": "Relax least important constraint or present options"
+    }
+  ],
+  
+  "agentic_workflow": [
+    "1. Execute initial plan: search_flights(Dec 25)",
+    "2. Receive error: No flights available",
+    "3. Parse error: Suggests nearby dates",
+    "4. Formulate new plan: Check alternative dates",
+    "5. Execute recovery: get_alternative_dates(±3 days)",
+    "6. Present options to user OR auto-book closest match (based on risk tolerance)"
+  ],
+  
+  "anti_patterns": [
+    {
+      "bad": "Retry same call multiple times with same parameters",
+      "why": "Wastes resources, doesn't address root cause"
+    },
+    {
+      "bad": "Immediately fail and report error to user",
+      "why": "User expected you to be helpful, not just a dumb messenger"
+    },
+    {
+      "bad": "Hallucinate a solution ('Flight XYZ123 is available')",
+      "why": "False information is worse than admission of failure"
+    },
+    {
+      "bad": "Infinite correction loop",
+      "why": "Must have max retry limit (e.g., 3 attempts)"
+    }
+  ],
+  
+  "when_to_give_up": [
+    "After 3 recovery attempts fail",
+    "When error indicates user action required (authentication)",
+    "When constraints are impossible (e.g., travel back in time)",
+    "When API is completely down (fail fast)",
+    "When cost of further attempts exceeds value"
+  ],
+  
+  "production_considerations": [
+    "Log all self-correction attempts for analysis",
+    "Track correction success rate by error type",
+    "Implement retry budgets (max retries per session)",
+    "Use circuit breakers for known failing endpoints",
+    "Present correction reasoning to user for transparency"
+  ],
+  
+  "tags": ["module-4", "self-correction", "error-recovery", "agentic-workflow", "resilience"]
+}
