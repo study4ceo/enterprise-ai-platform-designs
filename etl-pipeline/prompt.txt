@@ -1,0 +1,14 @@
+You are helping me build a production style Python data pipeline.
+Context:
+- Input: daily CSV files in ./data/raw, columns may vary slightly
+- Columns I care about: order_id, customer_id, order_date, amount, status
+- Output: a DuckDB table called orders_clean
+Requirements:
+- Separate modules for extract, transform, validate, load
+- Use pandas and DuckDB only
+- Use the logging module, not print
+- Fail loudly if validation fails, never load bad data
+- Make it idempotent, running twice must not create duplicates
+- Include type hints and short docstrings
+Start with the project structure and config. Wait for my approval
+before writing each module.
